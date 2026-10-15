@@ -4,6 +4,11 @@ define('URL_SITE_COLOR', 'darkblue');
 define('URL_SITE_COLOR_OPACITY', 0.6);
 define('URL_SITE_FONT_SIZE', 12);
 
+// Paleta da tela de login (GLPI 10+)
+define('CUSTOMLOGIN_PRIMARY', '#5b2a86');
+define('CUSTOMLOGIN_PRIMARY_DARK', '#3b1656');
+define('CUSTOMLOGIN_PAGE_BG', '#1e0f29');
+
 function plugin_customlogin_install()
 {
    $imgPluginPath = (GLPI_PLUGIN_DOC_DIR . DIRECTORY_SEPARATOR . "customlogin");
@@ -158,193 +163,151 @@ function plugin_glpi9()
 
    echo "
       <style>
-      #footer-login {
-         display: block !important;
+      :root {
+         --login-font: Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif;
+         --dev-font: Verdana, Arial, Helvetica, sans-serif;
+         --card-bg: #fff;
+         --text: #111;
+         --border: rgb(98 105 118 / .16);
+         --shadow: 0 10px 40px rgb(0 0 0 / .18), 0 2px 6px rgb(0 0 0 / .08);
+         --radius: 16px;
+         --logo-size: clamp(120px, 18vh, 195px);
+         --gap-y: clamp(40px, 8vh, 75px);
+         --gap-x: clamp(16px, 4vw, 40px);
+         --dev-size: {$url_site_font_size}px;
+         --dev-color: {$url_site_color};
+         --dev-opacity: {$url_site_color_opacity};
       }
-      @media only screen and (max-width: 1024px) {
-         body {
-            position: relative;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            background-image: url(\"{$imgMainBackground}\");
-            background-position: left;
-            background-size: 100vw 100vh;
-            background-repeat: no-repeat;
-         }
-         #root-div-dev {
-            bottom: 15px !important;
-            width: 100vw;
-            text-align: center;
-            position: absolute;
-            bottom: 0px;
-            font-size: {$url_site_font_size}px !important;
-            font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-weight: bold;
-            color: {$url_site_color} !important;
-            opacity: {$url_site_color_opacity} !important;
-         }
-         .dev {
-            font-size: {$url_site_font_size}px !important;
-            color: {$url_site_color} !important;
-            opacity: {$url_site_color_opacity} !important;
-         }
-         #root-div {
-            box-shadow: 0px 0px 2px 0px black;
-            overflow: hidden;
-            position: absolute;
-            top: 75px;
-            bottom: 75px;
-            right: 40px;
-            left: 40px;
-            background-color: white !important;
-            font-family: inter, -apple-system, blinkmacsystemfont, san francisco, segoe ui, roboto, helvetica neue, sans-serif;
-         }
-         h2 {
-            font-size: 1.25rem;
-            line-height: 1.4;
-            font-weight: 600;
-         }
-         #firstboxlogin {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            position: absolute;
-            background: white !important;
-            min-height: unset !important;
-         }
-         #logo_login, #text-login {
-            background: transparent !important;
-         }
-         #logo_login {
-            padding: unset !important
-         }
-         #logo_login > img {
-            width: 195px;
-            height: 195px;
-         }
-         #text-login {
-            border-bottom: 1px solid rgba(98, 105, 118, 0.16);
-         }
-         div, label, a {
-            color: black !important;
-         }
-         #footer-login.home {
-            bottom: 55px !important;
-            text-align: center;
-            width: 100vw;
-         }
-         #display-login, #text-login {
-            padding: 20px 20% !important;
-         }
-      }
-      @media only screen and (min-width: 1024px) {
-         body {
-            position: relative;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            background-image: url(\"{$imgMainBackground}\");
-            background-position: left;
-            background-size: 100vw 100vh;
-            background-repeat: no-repeat;
-         }
-         #root-div-dev {
-            bottom: 15px !important;
-            right: 50px !important;
-            position: absolute;
-            bottom: 0px;
-            font-size: {$url_site_font_size}px !important;
-            font-family: Verdana, Arial, Helvetica, sans-serif;
-            font-weight: bold;
-            color: {$url_site_color} !important;
-            opacity: {$url_site_color_opacity} !important;
-         }
-         .dev {
-            font-size: {$url_site_font_size}px !important;
-            color: {$url_site_color} !important;
-            opacity: {$url_site_color_opacity} !important;
-         }
-         #root-div {
-            box-shadow: 0px 0px 2px 0px black;
-            border-radius: 8px;
-            overflow: hidden;
-            position: absolute;
-            top: 45px;
-            bottom: 45px;
-            right: 40px;
-            left: 40px;
-            {$imgBackground}
-            background-color: white !important;
-            font-family: inter, -apple-system, blinkmacsystemfont, san francisco, segoe ui, roboto, helvetica neue, sans-serif;
-         }
-         h2 {
-            font-size: 1.2vw !important;
-            line-height: 1.4;
-            font-weight: 600;
-            text-align: center;
-         }
-         #firstboxlogin {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            position: absolute;
-            width: 30vw !important;
-            background: white !important;
-            min-height: unset !important;
 
-            box-shadow: -2px 0 2px 0px grey;
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+         position: relative;
+         margin: 0;
+         width: 100dvw;
+         height: 100dvh;
+         overflow: hidden;
+         font-family: var(--login-font);
+         background: url(\"{$imgMainBackground}\") left / cover no-repeat;
+         -webkit-font-smoothing: antialiased;
+      }
+
+      :is(div, label, a) { color: var(--text) !important; }
+
+      /* ===== Card ===== */
+      #root-div {
+         position: absolute;
+         inset: var(--gap-y) var(--gap-x);
+         overflow: hidden;
+         background-color: var(--card-bg) !important;
+         border-radius: var(--radius);
+         box-shadow: var(--shadow);
+         font-family: var(--login-font);
+      }
+
+      #firstboxlogin {
+         position: absolute;
+         inset: 0;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         justify-content: center;
+         gap: 1rem;
+         min-height: unset !important;
+         background: var(--card-bg) !important;
+      }
+
+      #logo_login, #text-login { background: transparent !important; }
+      #logo_login { padding: 0 !important; }
+
+      #logo_login > img {
+         width: var(--logo-size) !important;
+         height: var(--logo-size) !important;
+         object-fit: contain;
+         transition: width .2s, height .2s;
+      }
+
+      #text-login {
+         border-bottom: 1px solid var(--border);
+         overflow: visible !important;
+      }
+
+      #display-login, #text-login {
+         width: 100%;
+         padding: 20px clamp(16px, 20%, 120px) !important;
+      }
+
+      h2 {
+         margin: 0;
+         font-size: clamp(1.1rem, 1.2vw + .5rem, 1.35rem) !important;
+         font-weight: 600;
+         line-height: 1.4;
+         text-align: center;
+         text-wrap: balance;
+      }
+
+      /* ===== Dev / footer ===== */
+      #root-div-dev, .dev {
+         font-size: var(--dev-size) !important;
+         color: var(--dev-color) !important;
+         opacity: var(--dev-opacity) !important;
+      }
+
+      #root-div-dev {
+         position: absolute;
+         bottom: 15px !important;
+         inset-inline: 0;
+         text-align: center;
+         font-family: var(--dev-font);
+         font-weight: 700;
+      }
+
+      #footer-login { display: block !important; }
+
+      #footer-login.home {
+         position: absolute;
+         bottom: 55px !important;
+         inset-inline: 0;
+         text-align: center;
+      }
+
+      /* ===== Desktop ===== */
+      @media (min-width: 1024px) {
+         #root-div {
+            inset: 45px 40px;
+            {$imgBackground}
+            background-color: var(--card-bg) !important;
+         }
+
+         #firstboxlogin {
+            inset: 0 0 0 auto;
+            width: min(30vw, 480px) !important;
             padding-bottom: 50px;
+            box-shadow: -8px 0 24px rgb(0 0 0 / .08);
          }
-         #logo_login, #text-login {
-            background: transparent !important;
+
+         #display-login, #text-login { padding: 20px 2rem !important; }
+
+         #root-div-dev {
+            inset-inline: auto 50px;
+            text-align: right;
          }
-         #logo_login {
-            padding: 0 0 0 0;
-         }
-         #logo_login > img {
-            width: 195px !important;
-            height: 195px !important;
-         }
-         #text-login {
-            border-bottom: 1px solid rgba(98, 105, 118, 0.16);
-            overflow-x: unset !important;
-            overflow-y: unset !important;
-         }
-         div, label, a {
-            color: black !important;
-         }
+
          #footer-login.home {
-            bottom: 55px !important;
-            right: 50px !important;
+            inset-inline: auto 50px;
+            text-align: right;
          }
-         .copyright {
-            font-size: 9px !important;
-         }
+
+         .copyright { font-size: 9px !important; }
       }
-      @media only screen and (max-height: 840px) {
-         #logo_login > img {
-            width: 195px !important;
-            height: 195px !important;
-         }
+
+      /* ===== Telas baixas ===== */
+      @media (max-height: 720px) {
+         #logo_login > img { display: none; }
       }
-      @media only screen and (max-height: 720px) {
-         #logo_login > img {
-            display: none;
-         }
+
+      @media (prefers-reduced-motion: reduce) {
+         * { transition: none !important; }
       }
       </style>
    ";

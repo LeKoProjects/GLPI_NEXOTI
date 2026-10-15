@@ -1,0 +1,295 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-25 18:03+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. TRANS : %1$s is the itemtype name,
+#. %2$s is the name of the item (used for headings of a list)
+#: inc/task_item.class.php:507
+#, php-format
+msgid "%1$s = %2$s"
+msgstr ""
+
+#: inc/task_item.class.php:235
+msgid "Add an item"
+msgstr ""
+
+#. completename of task
+#: inc/task.class.php:266 inc/task.class.php:224 inc/task.class.php:249
+#: inc/task.class.php:258
+msgid "As child of"
+msgstr ""
+
+#: inc/configbplink.class.php:63 inc/configbplink.class.php:99
+msgid "As view on table"
+msgstr ""
+
+#: inc/profile.class.php:124 inc/profile.class.php:152
+#: inc/profile.class.php:155
+msgid "Associable items to a ticket"
+msgstr ""
+
+#: hook.php:195 hook.php:189 hook.php:199 hook.php:282
+msgid "Associate to the Business Process"
+msgstr ""
+
+#: inc/task.class.php:134 inc/task.class.php:213 inc/task_item.class.php:497
+msgid "Business Process Structure"
+msgstr ""
+
+#. comment about task
+#: inc/task.class.php:286 inc/task.class.php:244 inc/task.class.php:269
+#: inc/task.class.php:278
+msgid "Comment"
+msgstr ""
+
+#: inc/configbp.class.php:39
+msgid "Configbp"
+msgstr ""
+
+#: inc/profile.class.php:149
+msgid "Configuration"
+msgstr ""
+
+#: inc/profile.class.php:147
+msgid "Create"
+msgstr ""
+
+#. echo "<th rowspan=3></th>";
+#. criticity
+#: inc/task.class.php:293 inc/task.class.php:254 inc/task.class.php:279
+#: inc/task.class.php:288
+msgid "Criticity"
+msgstr ""
+
+#. db field type
+#: inc/configbp.class.php:214
+msgid "DB Field Type"
+msgstr ""
+
+#. description of task
+#. name
+#: inc/task.class.php:279 inc/task.class.php:122 inc/task.class.php:237
+#: inc/task.class.php:262 inc/task.class.php:123 inc/task.class.php:271
+#: inc/configbp.class.php:99 inc/configbp.class.php:188
+msgid "Description"
+msgstr ""
+
+#: inc/task.class.php:139 inc/task.class.php:221 inc/task_item.class.php:274
+#: inc/task_item.class.php:493 inc/task.class.php:175 inc/task.class.php:199
+#: inc/task.class.php:208 inc/task.class.php:193
+msgid "Entity"
+msgstr ""
+
+#. field group
+#: inc/configbp.class.php:196
+msgid "Field group"
+msgstr ""
+
+#. forcegroupby
+#: inc/configbp.class.php:147 inc/configbp.class.php:242
+msgid "Force group by ?"
+msgstr ""
+
+#: inc/profile.class.php:117
+msgid "General"
+msgstr ""
+
+#: inc/configbplink.class.php:45 inc/configbplink.class.php:81
+msgid "Has own dropdown"
+msgstr ""
+
+#: inc/profile.class.php:120
+msgid "Helpdesk"
+msgstr ""
+
+#. horizontal alignment
+#: inc/configbp.class.php:206
+msgid "Hor.alignment"
+msgstr ""
+
+#: inc/task.class.php:129 inc/task.class.php:139 inc/task.class.php:205
+#: inc/task.class.php:221 inc/task.class.php:159 inc/task.class.php:175
+#: inc/task.class.php:183 inc/task.class.php:199 inc/task.class.php:192
+#: inc/task.class.php:208 inc/configbp.class.php:155 inc/task.class.php:177
+#: inc/task.class.php:193
+msgid "ID"
+msgstr ""
+
+#: inc/task_item.class.php:276
+msgid "Inventory number"
+msgstr ""
+
+#: inc/configbplink.class.php:57 inc/configbplink.class.php:93
+msgid "Is hierarchical dropdown"
+msgstr ""
+
+#: inc/configbplink.class.php:51 inc/configbplink.class.php:87
+msgid "Is limited by entity"
+msgstr ""
+
+#: inc/configbp.class.php:123
+msgid "Is linked to another class"
+msgstr ""
+
+#. islinked
+#: inc/configbp.class.php:250
+msgid "Is linked to another class ?"
+msgstr ""
+
+#. readonly
+#: inc/configbp.class.php:224
+msgid "Is read-only ?"
+msgstr ""
+
+#: inc/configbpfieldgroup.class.php:52 inc/configbpfieldgroup.class.php:71
+msgid "Is visible on opening"
+msgstr ""
+
+#. join parameters
+#: inc/configbp.class.php:268
+msgid "Join parameters"
+msgstr ""
+
+#: inc/task.class.php:124 inc/task.class.php:197 inc/task.class.php:151
+#: inc/task.class.php:167 inc/task.class.php:168
+msgid "Last update"
+msgstr ""
+
+#. level of task
+#: inc/task.class.php:104 inc/task.class.php:168 inc/task.class.php:271
+#: inc/task.class.php:114 inc/task.class.php:229 inc/task.class.php:254
+#: inc/task.class.php:115 inc/task.class.php:263
+msgid "Level"
+msgstr ""
+
+#. link field
+#: inc/configbp.class.php:260
+msgid "Linked by field"
+msgstr ""
+
+#. linked table
+#: inc/configbp.class.php:255
+msgid "Linked class"
+msgstr ""
+
+#. application
+#: inc/task.class.php:297 inc/task.class.php:261 inc/task.class.php:294
+#: inc/task.class.php:308
+msgid "Linked to application"
+msgstr ""
+
+#. massiveaction
+#: inc/configbp.class.php:139 inc/configbp.class.php:237
+msgid "Massive action allowed ?"
+msgstr ""
+
+#. name of task
+#. name
+#. name of task
+#: hook.php:167 inc/task.class.php:98 inc/task.class.php:159
+#: inc/task.class.php:258 inc/task_item.class.php:272
+#: inc/task_item.class.php:491 inc/task.class.php:105 inc/task.class.php:216
+#: hook.php:161 inc/task.class.php:241 hook.php:171 inc/task.class.php:106
+#: inc/task.class.php:250 hook.php:254 inc/configbp.class.php:65
+#: inc/configbp.class.php:179 inc/task.class.php:107 inc/task.class.php:249
+msgid "Name"
+msgstr ""
+
+#: inc/profile.class.php:147
+msgid "Read"
+msgstr ""
+
+#. row
+#: inc/configbp.class.php:107 inc/configbp.class.php:201
+msgid "Row"
+msgstr ""
+
+#. search datatype
+#: inc/configbp.class.php:219
+msgid "Search Data Type"
+msgstr ""
+
+#. nosearch
+#: inc/configbp.class.php:232
+msgid "Search allowed ?"
+msgstr ""
+
+#: inc/task_item.class.php:275
+msgid "Serial number"
+msgstr ""
+
+#: inc/configbpfieldgroup.class.php:46 inc/configbpfieldgroup.class.php:65
+msgid "Sort order"
+msgstr ""
+
+#. status
+#: inc/task.class.php:300
+msgid "Status"
+msgstr ""
+
+#. target
+#: inc/task.class.php:286 inc/task.class.php:295
+msgid "Targets"
+msgstr ""
+
+#. users
+#: inc/task.class.php:110 inc/task.class.php:177 inc/task.class.php:317
+#: inc/task.class.php:131 inc/task.class.php:290 inc/task.class.php:147
+#: inc/task.class.php:323 inc/task.class.php:148 inc/task.class.php:337
+msgid "Task Expert"
+msgstr ""
+
+#: inc/task.class.php:187 inc/task.class.php:141 inc/task.class.php:157
+#: inc/task.class.php:158
+msgid "Task Follow-up"
+msgstr ""
+
+#. groups
+#: inc/task.class.php:117 inc/task.class.php:309 inc/task.class.php:282
+#: inc/task.class.php:315 inc/task.class.php:329
+msgid "Task Owner's group"
+msgstr ""
+
+#: inc/task.class.php:167 inc/task.class.php:191 inc/task.class.php:200
+#: inc/task.class.php:185
+msgid "Tasks Structure"
+msgstr ""
+
+#. transaction code
+#: inc/task.class.php:301 inc/task.class.php:265 inc/task.class.php:298
+#: inc/task.class.php:312
+msgid "Transaction code"
+msgstr ""
+
+#. type
+#: inc/task_item.class.php:271 inc/task.class.php:250 inc/task.class.php:275
+#: inc/task.class.php:284
+msgid "Type"
+msgstr ""
+
+#: inc/task.class.php:273 inc/task.class.php:306 inc/task.class.php:320
+msgid "URL doc."
+msgstr ""
+
+#: inc/profile.class.php:147
+msgid "Update"
+msgstr ""
+
+#: inc/configbplink.class.php:69
+msgid "View limited by WHERE clause"
+msgstr ""

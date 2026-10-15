@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * accounts plugin for GLPI
+ * Copyright (C) 2015-2026 by the accounts Development Team.
+ *
+ * https://github.com/InfotelGLPI/accounts
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of accounts.
+ *
+ * accounts is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * accounts is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with accounts. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+/*  AES implementation in PHP                                                                     */
+/*    (c) Chris Veness 2005-2011 www.movable-type.co.uk/scripts                                   */
+/*    Right of free use is granted for all commercial or non-commercial use providing this        */
+/*    copyright notice is retainded. No warranty of any form is offered.                          */
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
+
+namespace GlpiPlugin\Accounts;
+
+class AesCtr extends Aes
+{
+    public static $rightname = "plugin_accounts_hash";
+    /**
+     * Encrypt a text using AES encryption in Counter mode of operation
+     *  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+     *
+     * Unicode multi-byte character safe
+     *
+     * @deprecated Kept for reading only. Nothing in the plugin calls this any more, and nothing
+     *             should: the v1 format it produces carries no MAC, so counter mode leaves it
+     *             malleable -- flipping a bit of the ciphertext flips the same bit of the
+     *             password, with no way for the reader to notice. Its nonce is drawn from
+     *             rand(), which is not a cryptographic generator either. New cryptograms are
+     *             written by AccountCrypto::encrypt() (v4: PBKDF2-derived keys,
+     *             encrypt-then-MAC); the decrypt() below stays only to keep records written
+     *             before that readable.
+     *
+     * @param string $plaintext Source text to be encrypted
+     * @param string $password  Password to use to generate a key
+     * @param int    $nBits     Number of bits to be used in the key (128, 192, or 256)
+     *
+     * @return string Encrypted text, or an empty string for an unsupported key size
+     */
+    public static function encrypt($plaintext, $password, $nBits)
+    {
+        $blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
+        if (!($nBits == 128 || $nBits == 192 || $nBits == 256)) {
+            return '';
+        }  // standard allows 128/192/256 bit keys
+        // note PHP (5) gives us plaintext and password in UTF8 encoding!
+
+        // use AES itself to encrypt password to get cipher key (using plain password as source for
+        // key expansion) - gives us well encrypted key
+        $nBytes = $nBits / 8;  // no bytes in key
+        $pwBytes = [];
+        for ($i = 0; $i < $nBytes; $i++) {
+            $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+        }
+        $key = Aes::cipher($pwBytes, Aes::keyExpansion($pwBytes));
+        $key = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
+
+        // initialise 1st 8 bytes of counter block with nonce (NIST SP800-38A §B.2): [0-1] = millisec,
+        // [2-3] = random, [4-7] = seconds, giving guaranteed sub-ms uniqueness up to Feb 2106
+        $counterBlock = [];
+        $nonce = (int) floor(microtime(true) * 1000);   // timestamp: milliseconds since 1-Jan-1970
+        $nonceMs = $nonce % 1000;
+        $nonceSec = (int) floor($nonce / 1000);
+        $nonceRnd = rand(0, 0xffff);
+
+        for ($i = 0; $i < 2; $i++) {
+            $counterBlock[$i]   = self::urs($nonceMs, $i * 8) & 0xff;
+        }
+        for ($i = 0; $i < 2; $i++) {
+            $counterBlock[$i + 2] = self::urs($nonceRnd, $i * 8) & 0xff;
+        }
+        for ($i = 0; $i < 4; $i++) {
+            $counterBlock[$i + 4] = self::urs($nonceSec, $i * 8) & 0xff;
+        }
+
+        // and convert it to a string to go on the front of the ciphertext
+        $ctrTxt = '';
+        for ($i = 0; $i < 8; $i++) {
+            $ctrTxt .= chr($counterBlock[$i]);
+        }
+
+        // generate key schedule - an expansion of the key into distinct Key Rounds for each round
+        $keySchedule = Aes::keyExpansion($key);
+        //print_r($keySchedule);
+
+        $blockCount = ceil(strlen($plaintext) / $blockSize);
+        $ciphertxt = [];  // ciphertext as array of strings
+
+        for ($b = 0; $b < $blockCount; $b++) {
+            // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
+            // done in two stages for 32-bit ops: using two words allows us to go past 2^32 blocks (68GB)
+            for ($c = 0; $c < 4; $c++) {
+                $counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
+            }
+            for ($c = 0; $c < 4; $c++) {
+                $counterBlock[15 - $c - 4] = self::urs((int) ($b / 0x100000000), $c * 8);
+            }
+
+            $cipherCntr = Aes::cipher($counterBlock, $keySchedule);  // -- encrypt counter block --
+
+            // block size is reduced on final block
+            $blockLength = $b < $blockCount - 1 ? $blockSize : (strlen($plaintext) - 1) % $blockSize + 1;
+            $cipherByte = [];
+
+            for ($i = 0; $i < $blockLength; $i++) {  // -- xor plaintext with ciphered counter byte-by-byte --
+                $cipherByte[$i] = $cipherCntr[$i] ^ ord(substr($plaintext, $b * $blockSize + $i, 1));
+                $cipherByte[$i] = chr($cipherByte[$i]);
+            }
+            $ciphertxt[$b] = implode('', $cipherByte);  // escape troublesome characters in ciphertext
+        }
+
+        // implode is more efficient than repeated string concatenation
+        $ciphertext = $ctrTxt . implode('', $ciphertxt);
+        $ciphertext = base64_encode($ciphertext);
+        return $ciphertext;
+    }
+
+
+    /**
+     * Decrypt a text encrypted by AES in counter mode of operation
+     *
+     * @param string $ciphertext Source text to be decrypted
+     * @param string $password   Password to use to generate a key
+     * @param int    $nBits      Number of bits to be used in the key (128, 192, or 256)
+     *
+     * @return string Decrypted text, or an empty string for an unsupported key size
+     */
+    public static function decrypt($ciphertext, $password, $nBits)
+    {
+        $blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
+        if (!($nBits == 128 || $nBits == 192 || $nBits == 256)) {
+            return '';
+        }  // standard allows 128/192/256 bit keys
+        $ciphertext = base64_decode($ciphertext);
+
+        // use AES to encrypt password (mirroring encrypt routine)
+        $nBytes = $nBits / 8;  // no bytes in key
+        $pwBytes = [];
+        for ($i = 0; $i < $nBytes; $i++) {
+            $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+        }
+        $key = Aes::cipher($pwBytes, Aes::keyExpansion($pwBytes));
+        $key = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
+
+        // recover nonce from 1st element of ciphertext
+        $counterBlock = [];
+        $ctrTxt = substr($ciphertext, 0, 8);
+        for ($i = 0; $i < 8; $i++) {
+            $counterBlock[$i] = ord(substr($ctrTxt, $i, 1));
+        }
+
+        // generate key schedule
+        $keySchedule = Aes::keyExpansion($key);
+
+        // separate ciphertext into blocks (skipping past initial 8 bytes)
+        $nBlocks = ceil((strlen($ciphertext) - 8) / $blockSize);
+        $ct = [];
+        for ($b = 0; $b < $nBlocks; $b++) {
+            $ct[$b] = substr($ciphertext, 8 + $b * $blockSize, 16);
+        }
+        $ciphertext = $ct;  // ciphertext is now array of block-length strings
+
+        // plaintext will get generated block-by-block into array of block-length strings
+        $plaintxt = [];
+
+        for ($b = 0; $b < $nBlocks; $b++) {
+            // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
+            for ($c = 0; $c < 4; $c++) {
+                $counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
+            }
+            for ($c = 0; $c < 4; $c++) {
+                $counterBlock[15 - $c - 4] = self::urs(intdiv($b, 0x100000000), $c * 8) & 0xff;
+            }
+
+            $cipherCntr = Aes::cipher($counterBlock, $keySchedule);  // encrypt counter block
+
+            $plaintxtByte = [];
+            for ($i = 0; $i < strlen($ciphertext[$b]); $i++) {
+                // -- xor plaintext with ciphered counter byte-by-byte --
+                $plaintxtByte[$i] = $cipherCntr[$i] ^ ord(substr($ciphertext[$b], $i, 1));
+                $plaintxtByte[$i] = chr($plaintxtByte[$i]);
+
+            }
+            $plaintxt[$b] = implode('', $plaintxtByte);
+        }
+
+        // join array of blocks into single plaintext string
+        $plaintext = implode('', $plaintxt);
+
+        return $plaintext;
+    }
+
+
+    /*
+     * Unsigned right shift function, since PHP has neither >>> operator nor unsigned ints
+     *
+     * @param int $a Number to be shifted (32-bit integer)
+     * @param int $b Number of bits to shift $a to the right (0..31)
+     *
+     * @return int $a right-shifted and zero-filled by $b bits
+     */
+    private static function urs($a, $b)
+    {
+        $a &= 0xffffffff;
+        $b &= 0x1f;  // (bounds check)
+        if ($a & 0x80000000 && $b > 0) {   // if left-most bit set
+            $a = ($a >> 1) & 0x7fffffff;   //   right-shift one bit & clear left-most bit
+            $a = $a >> ($b - 1);           //   remaining right-shifts
+        } else {                       // otherwise
+            $a = ($a >> $b);               //   use normal right-shift
+        }
+        return $a;
+    }
+
+}

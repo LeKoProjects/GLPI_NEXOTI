@@ -1,0 +1,125 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Shellcommands Development Team
+# This file is distributed under the same license as the GLPI - Shellcommands plugin package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Xavier CAILLAUD <thetsmr@gmail.com>, 2020
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI - Shellcommands plugin 2.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-02-25 09:32+0100\n"
+"PO-Revision-Date: 2020-11-02 13:01+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>, 2020\n"
+"Language-Team: Russian (Russia) (https://www.transifex.com/infotelGLPI/teams/12373/ru_RU/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru_RU\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: hook.php:147 inc/shellcommand.class.php:116 inc/shellcommand.class.php:214
+#: inc/shellcommandpath.class.php:40
+msgid "Path"
+msgid_plural "Pathes"
+msgstr[0] "Путь"
+msgstr[1] "Путей"
+msgstr[2] "Путей"
+msgstr[3] "Пути"
+
+#: hook.php:228
+msgid "Command launch"
+msgstr "Запуск команды"
+
+#: hook.php:229
+msgid "Command group launch"
+msgstr "Запуск группы команд"
+
+#: setup.php:65 inc/profile.class.php:101 inc/shellcommand.class.php:49
+#: inc/shellcommand.class.php:487
+msgid "Shell Command"
+msgid_plural "Shell Commands"
+msgstr[0] "Служебная команда"
+msgstr[1] "Служебные команды"
+msgstr[2] "Служебные команды"
+msgstr[3] "Служебные команды"
+
+#: inc/advanced_execution.class.php:40 inc/shellcommand.class.php:497
+msgid "Advanced execution"
+msgid_plural "Advanced executions"
+msgstr[0] "Расширенный запуск"
+msgstr[1] "Расширенных запусков"
+msgstr[2] "Расширенных запусков"
+msgstr[3] "Расширенный запуск"
+
+#: inc/commandgroup.class.php:40 inc/commandgroup_item.class.php:58
+#: inc/shellcommand.class.php:492
+msgid "Command group"
+msgid_plural "Command groups"
+msgstr[0] "Группа команд"
+msgstr[1] "Групп команд"
+msgstr[2] "Групп команд"
+msgstr[3] "Группы команд"
+
+#: inc/commandgroup.class.php:120
+msgid "Check command"
+msgstr "Команда для проверки"
+
+#: inc/commandgroup_item.class.php:158
+msgid "Add a command"
+msgstr "Добавить команду"
+
+#: inc/commandgroup_item.class.php:212
+msgid "Add a command group"
+msgstr "Создать группу команд"
+
+#: inc/commandgroup_item.class.php:398
+msgid "Order"
+msgstr "Порядок выполнения"
+
+#: inc/commandgroup_item.class.php:546
+msgid "Host UP"
+msgstr "Узел ВКЛ."
+
+#: inc/commandgroup_item.class.php:577
+msgid "Host DOWN"
+msgstr "Узел ВЫКЛ."
+
+#: inc/menu.class.php:47
+msgid "Shellcommands menu"
+msgstr "Меню служебных команд"
+
+#: inc/shellcommand.class.php:124 inc/shellcommand.class.php:209
+msgid "Windows"
+msgstr "Windows"
+
+#: inc/shellcommand.class.php:201
+msgid "Tag position"
+msgstr "Позиция тега"
+
+#: inc/shellcommand.class.php:203
+msgid "Before parameters"
+msgstr "До параметров"
+
+#: inc/shellcommand.class.php:203
+msgid "After parameters"
+msgstr "После параметров"
+
+#: inc/shellcommand_item.class.php:464
+msgid "Associated Commands"
+msgstr "Связанные команды"
+
+#: inc/shellcommand_item.class.php:818
+msgid "There is an error with socket creation"
+msgstr "Произошла ошибка при создании сокета"
+
+#: inc/shellcommand_item.class.php:857
+msgid "Magic packet sending to"
+msgstr "Осуществляется передача \"magic packet\" "
+
+#: inc/shellcommand_item.class.php:859
+msgid "The packet cannot be send"
+msgstr "Пакет не может быть отправлен"

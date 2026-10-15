@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * webapplications plugin for GLPI
+ * Copyright (C) 2015-2026 by the webapplications Development Team.
+ *
+ * https://github.com/InfotelGLPI/webapplications
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of webapplications.
+ *
+ * webapplications is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * webapplications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+use GlpiPlugin\Webapplications\Entity;
+
+// Page-level guard mirroring the sibling controllers (front/entity.php,
+// process_entity.form.php). Without it, a call with no id reached
+// the else branch and display(['id' => ""]): CommonGLPI::display() runs no check at all in
+// that case, since isNewID("") skips getFromDB() and the can($_GET['id'], READ) guard is
+// short-circuited by the empty, falsy id - so the creation form and its core-populated
+// dropdowns were rendered to a profile holding no plugin right whatsoever. The per-branch
+// check(-1, CREATE, $_POST) / check($_POST['id'], UPDATE) below remain the real
+// authorization boundary on the mutated record.
+Session::checkRight("plugin_webapplications_entities", READ);
+
+if (!isset($_GET["id"])) {
+    $_GET["id"] = "";
+}
+if (!isset($_GET["withtemplate"])) {
+    $_GET["withtemplate"] = "";
+}
+
+
+$entity = new Entity();
+
+if (isset($_POST["add"])) {
+    $entity->check(-1, CREATE, $_POST);
+    $newID = $entity->add($_POST);
+    if ($_SESSION['glpibackcreated']) {
+        Html::redirect($entity->getFormURL() . "?id=" . $newID);
+    }
+    Html::back();
+} elseif (isset($_POST["delete"])) {
+    $entity->check($_POST['id'], DELETE);
+    $entity->delete($_POST);
+    $entity->redirectToList();
+} elseif (isset($_POST["restore"])) {
+    $entity->check($_POST['id'], PURGE);
+    $entity->restore($_POST);
+    $entity->redirectToList();
+} elseif (isset($_POST["purge"])) {
+    $entity->check($_POST['id'], PURGE);
+    $entity->delete($_POST, 1);
+    $entity->redirectToList();
+} elseif (isset($_POST["update"])) {
+    $entity->check($_POST['id'], UPDATE);
+    $entity->update($_POST);
+    Html::back();
+} elseif (isset($_GET['_in_modal'])) {
+    $_SESSION['reload'] = true;
+    Html::popHeader(Entity::getTypeName(2), $_SERVER['PHP_SELF']);
+    $options = ['withtemplate' => $_GET["withtemplate"], 'formoptions'  => "data-track-changes=true"];
+    if (isset($_GET['appliance_id'])) {
+        $options['appliances_id'] = $_GET['appliance_id'];
+    }
+    $menus = ["appliancedashboard", "entity"];
+    Entity::displayFullPageForItem($_GET['id'], $menus, $options);
+    Html::popFooter();
+} else {
+    if (Session::getCurrentInterface() == "central") {
+        Html::header(Entity::getTypeName(2), $_SERVER['PHP_SELF'], "appliancedashboard", Entity::class, "config");
+        $entity->display(['id' => $_GET["id"]]);
+    }
+    Html::footer();
+}

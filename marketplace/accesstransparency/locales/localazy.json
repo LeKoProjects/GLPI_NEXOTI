@@ -1,0 +1,21 @@
+{
+	"upload": {
+		"type": "pot",
+		"deprecate": "project",
+		"files": [
+			{
+				"pattern": "accesstransparency.pot",
+				"lang": "en_GB"
+			}, {
+				"group": "existing",
+				"file": "accesstransparency.pot",
+				"pattern": "./*.po",
+				"type": "po",
+				"lang": "${autodetectLang}"
+			}
+		]
+	},
+	"download": {
+		"files": "${languageCode}_${regionCode}.po"
+	}
+}

@@ -1,0 +1,310 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# David Štěpán <stepand@tiscali.cz>, 2024
+# Pavel Borecki <pavel.borecki@gmail.com>, 2018
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI Plugin - News\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-25 03:19+0000\n"
+"PO-Revision-Date: 2015-09-18 13:33+0000\n"
+"Last-Translator: David Štěpán <stepand@tiscali.cz>, 2024\n"
+"Language-Team: Czech (Czech Republic) (http://app.transifex.com/teclib/glpi-plugin-news/language/cs_CZ/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: cs_CZ\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
+
+#: templates/components/news_fields_macros.html.twig
+msgid "No icon"
+msgstr "Žádná ikona"
+
+#: templates/profile.html.twig
+msgctxt "button"
+msgid "Save"
+msgstr "Uložit"
+
+#: templates/alert_form.html.twig inc/alert.class.php:113
+msgid "Name"
+msgstr "Jméno"
+
+#: templates/alert_form.html.twig inc/alert.class.php:203
+msgid "Active"
+msgstr "Aktivní"
+
+#: templates/alert_form.html.twig
+msgid "Description"
+msgstr "Popis"
+
+#: templates/alert_form.html.twig inc/alert.class.php:123
+msgid "Visibility start date"
+msgstr "Datum zahájení viditelnosti"
+
+#: templates/alert_form.html.twig inc/alert.class.php:131
+msgid "Visibility end date"
+msgstr "Datum ukončení viditelnosti"
+
+#: templates/alert_form.html.twig
+msgid "Central page"
+msgstr "Centrální stránka"
+
+#: templates/alert_form.html.twig
+msgid "Login page"
+msgstr "Přihlašovací stránka"
+
+#: templates/alert_form.html.twig
+msgid "Helpdesk page"
+msgstr "Stránka Helpdesku"
+
+#: templates/alert_form.html.twig
+msgid "Service catalog page"
+msgstr ""
+
+#: templates/alert_form.html.twig
+msgid "Show on pages"
+msgstr "Zobrazit na stránkách"
+
+#: templates/alert_form.html.twig inc/alert.class.php:167
+msgid "Can close alert"
+msgstr "Může zavřít výstrahu"
+
+#: templates/alert_form.html.twig
+msgid "Customization"
+msgstr "Přizpůsobení"
+
+#: templates/alert_form.html.twig
+msgid "Template"
+msgstr "Šablona"
+
+#: templates/alert_form.html.twig
+msgid "Size"
+msgstr "Velikost"
+
+#: templates/alert_form.html.twig
+msgid "Icon"
+msgstr "Ikona"
+
+#: templates/alert_form.html.twig
+msgid "Show dates"
+msgstr "Zobrazit data"
+
+#: templates/alert_form.html.twig
+msgid "Background color"
+msgstr "Barva pozadí"
+
+#: templates/alert_form.html.twig
+msgid "Text color"
+msgstr "Barva textu"
+
+#: templates/alert_form.html.twig
+msgid "Emphasis color"
+msgstr "Barva zvýraznění"
+
+#: templates/alert_form.html.twig
+msgid "Preview"
+msgstr "Náhled"
+
+#: front/alert.php:34 front/hidden_alerts.php:34 front/hidden_alerts.php:37
+#: front/alert.form.php:113 inc/alert.class.php:89 setup.php:87
+msgid "Alerts"
+msgstr "Upozornění"
+
+#: front/alert.form.php:49
+#, php-format
+msgid "%s updates an item"
+msgstr "%s aktualizuje položku"
+
+#: front/alert.form.php:61
+#, php-format
+msgid "%1$s adds the item %2$s"
+msgstr "%1$s přidá položku %2$s"
+
+#: front/alert.form.php:77
+#, php-format
+msgid "%s deletes an item"
+msgstr "%s smaže položku"
+
+#: front/alert.form.php:89
+#, php-format
+msgid "%s restores an item"
+msgstr "%s obnoví položku"
+
+#: front/alert.form.php:101
+#, php-format
+msgid "%s purges an item"
+msgstr "%s vyčistí položku"
+
+#: inc/alert_user.class.php:88
+msgid "Status"
+msgstr "Stav"
+
+#: inc/alert.class.php:139
+msgid "Entity"
+msgstr "Entita"
+
+#: inc/alert.class.php:147
+msgid "Recursive"
+msgstr "Rekurzivní"
+
+#: inc/alert.class.php:176
+msgid "Show on login page"
+msgstr "Zobrazit na přihlašovací stránce"
+
+#: inc/alert.class.php:185
+msgid "Show on helpdesk page"
+msgstr "Zobrazit na stránce služby podpory"
+
+#: inc/alert.class.php:194
+msgid "Show on service catalog page"
+msgstr ""
+
+#: inc/alert.class.php:211
+msgid "Last update"
+msgstr "Poslední aktualizace"
+
+#: inc/alert.class.php:220
+msgid "Creation date"
+msgstr "Datum vytvoření"
+
+#: inc/alert.class.php:447
+msgid "Please enter a name."
+msgstr "Prosím zadejte název."
+
+#: inc/alert.class.php:451
+msgid "The end date must be greater than the start date."
+msgstr "Je třeba, aby datum konce bylo později než začátku."
+
+#: inc/alert.class.php:581
+msgid "You have hidden alerts valid for current date"
+msgstr "Máte skrytá upozornění platná pro aktuální datum"
+
+#: inc/alert.class.php:642
+msgid "General"
+msgstr "Obecné"
+
+#: inc/alert.class.php:643
+msgid "Information"
+msgstr "Informace"
+
+#: inc/alert.class.php:644
+msgid "Warning"
+msgstr "Varování"
+
+#: inc/alert.class.php:645
+msgid "Problem"
+msgstr "Problém"
+
+#: inc/alert.class.php:657
+msgid "Small"
+msgstr "Malý"
+
+#: inc/alert.class.php:658
+msgid "Medium"
+msgstr "Střední"
+
+#: inc/alert.class.php:659
+msgid "Big"
+msgstr "Velké"
+
+#: inc/alert.class.php:660
+msgid "Max"
+msgstr "Max"
+
+#: inc/alert.class.php:672
+msgid "Settings"
+msgstr "Nastavení"
+
+#: inc/alert.class.php:673
+msgid "Alert circle"
+msgstr "Kruh upozornění"
+
+#: inc/alert.class.php:674
+msgid "Alert triangle"
+msgstr "Výstražný trojúhelník"
+
+#: inc/alert.class.php:675
+msgid "Alert octagon"
+msgstr "Výstražný osmiúhelník"
+
+#: inc/alert.class.php:687
+msgid "Black"
+msgstr "Černá"
+
+#: inc/alert.class.php:688
+msgid "White"
+msgstr "Bílá"
+
+#: inc/alert.class.php:689
+msgid "Blue"
+msgstr "Modrá"
+
+#: inc/alert.class.php:690
+msgid "Cyan"
+msgstr "Tyrkysová"
+
+#: inc/alert.class.php:691
+msgid "Indigo"
+msgstr "Indigo"
+
+#: inc/alert.class.php:692
+msgid "Purple"
+msgstr "Nachová"
+
+#: inc/alert.class.php:693
+msgid "Pink"
+msgstr "Růžová"
+
+#: inc/alert.class.php:694
+msgid "Red"
+msgstr "Červená"
+
+#: inc/alert.class.php:695
+msgid "Orange"
+msgstr "Oranžová"
+
+#: inc/alert.class.php:696
+msgid "Yellow"
+msgstr "Žlutá"
+
+#: inc/alert.class.php:697
+msgid "Lime"
+msgstr "Limetka"
+
+#: inc/alert_target.class.php:44
+msgid "Target"
+msgid_plural "Targets"
+msgstr[0] "Cíl"
+msgstr[1] "Cílů"
+msgstr[2] "Cílů"
+msgstr[3] "Cíle"
+
+#: inc/alert_target.class.php:86 inc/alert_target.class.php:180
+#: ajax/targets.php:56
+msgid "All"
+msgstr "Vše"
+
+#: inc/alert_target.class.php:134
+msgid "Add a target"
+msgstr "Přidat cíl"
+
+#: inc/alert_target.class.php:162
+msgctxt "button"
+msgid "Delete permanently"
+msgstr "Trvale odstranit"
+
+#: inc/alert_target.class.php:170
+msgid "Type"
+msgstr "Typ"
+
+#: inc/alert_target.class.php:171
+msgid "Recipient"
+msgstr "Příjemce"
+
+#: ajax/targets.php:61
+msgctxt "button"
+msgid "Add"
+msgstr "Přidat"

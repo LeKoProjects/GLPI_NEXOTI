@@ -1,0 +1,303 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * webapplications plugin for GLPI
+ * Copyright (C) 2015-2026 by the webapplications Development Team.
+ *
+ * https://github.com/InfotelGLPI/webapplications
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of webapplications.
+ *
+ * webapplications is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * webapplications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+namespace GlpiPlugin\Webapplications;
+
+use Appliance_Item;
+use Appliance_Item_Relation;
+use CommonDBTM;
+use CommonGLPI;
+use Dropdown;
+use Glpi\Application\View\TemplateRenderer;
+use Html;
+use IPAddress;
+use Item_OperatingSystem;
+
+/**
+ * Class PhysicalInfrastructure
+ */
+class PhysicalInfrastructure extends CommonDBTM
+{
+    public static $rightname = "plugin_webapplications_appliances";
+
+    public static function getTypeName($nb = 0)
+    {
+        return __('Physical Infrastructure', 'webapplications');
+    }
+
+    public static function getIcon()
+    {
+        return "ti ti-server";
+    }
+
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+    {
+        if ($_SESSION['glpishow_count_on_tabs']) {
+            $nb = count(self::getItems());
+            return self::createTabEntry(self::getTypeName($nb), $nb);
+        }
+        return self::getTypeName();
+    }
+
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+    {
+        $obj = new self();
+        Dashboard::showList($obj);
+    }
+
+    public static function getItems()
+    {
+        global $CFG_GLPI;
+        $ApplianceId = $_SESSION['plugin_webapplications_loaded_appliances_id'] ?? 0;
+
+        $itemsAppDBTM = new Appliance_Item();
+
+        $itemApp = $itemsAppDBTM->find([
+            'appliances_id' => $ApplianceId,
+            'itemtype' => $CFG_GLPI['inventory_types'],
+        ], 'itemtype');
+
+        $listItem = [];
+        foreach ($itemApp as $st) {
+            // The itemtype comes from the database and is used as a class name, so it
+            // must be a real CommonDBTM before it is instantiated. can() then applies
+            // the object right AND Session::haveAccessToEntity(), neither of which
+            // find()/getFromDB() enforce: without it this tab listed the names,
+            // operating systems and IP addresses of items outside the viewer's scope.
+            if (!is_a($st['itemtype'], CommonDBTM::class, true)) {
+                continue;
+            }
+            $itemDBTM = new $st['itemtype']();
+            if ($itemDBTM->can((int) $st['items_id'], READ)) {
+                $item = ['id' => $st['items_id'],'name' => $itemDBTM->fields['name'], 'itemtype' => $st['itemtype']];
+                array_push($listItem, $item);
+            }
+        }
+        usort($listItem, function ($a, $b) {
+            return $a['name'] <=> $b['name'];
+        });
+
+        return $listItem;
+    }
+
+    public static function showListObjects($list)
+    {
+        global $DB;
+
+        $list_by_itemtypes = [];
+        foreach ($list as $item) {
+            $list_by_itemtypes[$item['itemtype']][] =  $item['id'];
+        }
+
+        foreach ($list_by_itemtypes as $itemtype => $items) {
+            // showListObjects() is also reached from Dashboard::showList() with a list
+            // this class did not build, so re-validate the dynamic class name here too.
+            if (!is_a($itemtype, CommonDBTM::class, true)) {
+                continue;
+            }
+
+            $object = new $itemtype();
+            $cards = [];
+
+            $card_icon = "ti-server";
+            if ($itemtype == "Phone") {
+                $card_icon = "ti-phone";
+            } elseif ($itemtype == "Printer") {
+                $card_icon = "ti-printer";
+            } elseif ($itemtype == "NetworkEquipment") {
+                $card_icon = "ti-router";
+            }
+
+            // The whole screen is framed by the application loaded in session - getItems()
+            // filters its own query on it - so the relation rows have to be filtered on it too.
+            $appliances_id = (int) ($_SESSION['plugin_webapplications_loaded_appliances_id'] ?? 0);
+
+            foreach ($items as $items_id) {
+                // Defense in depth: the caller may pass a list that never went through
+                // getItems(), so the read right is re-checked before anything about the
+                // item is rendered. can() loads the record on success.
+                if (!$object->can((int) $items_id, READ)) {
+                    continue;
+                }
+                $id = $items_id;
+
+                $blocks = [];
+
+                // The appliances_id criterion was missing: every link row of the item was
+                // walked, whatever application referenced it, so the environments declared by
+                // OTHER applications were listed in the dashboard of the current one. Each
+                // environment is still re-checked below, so nothing unauthorised was rendered,
+                // but the screen told a manager scoped on application A that a given server is
+                // also used by an application they are not supposed to know about, under a name
+                // its own team chose.
+                $relations = $DB->request([
+                    'FROM'   => Appliance_Item::getTable(),
+                    'WHERE'  => [
+                        'appliances_id' => $appliances_id,
+                        'items_id' => $items_id,
+                        'itemtype' => $itemtype,
+                    ],
+                ]);
+                $relations = iterator_to_array($relations);
+
+                // The Delete button posts to front/dashboard.php, which detaches the item from
+                // the application by purging this very Appliance_Item row, after its own
+                // check($id, PURGE). It used to be emitted for anyone able to read the list, so
+                // a read-only user was offered a command that could only ever answer with an
+                // access error. can() covers both the PURGE right and the entity of the link.
+                $delete_html = '';
+                $link_item = new Appliance_Item();
+                foreach ($relations as $relation) {
+                    if ($link_item->can((int) $relation['id'], PURGE)) {
+                        $delete_html = Html::getSimpleForm(
+                            PLUGIN_WEBAPPLICATIONS_WEBDIR . "/front/dashboard.php",
+                            'reset',
+                            __('Delete'),
+                            ['items_id' => $id, 'itemtype' => $itemtype],
+                            'ti-circle-x',
+                        );
+                        break;
+                    }
+                }
+
+                $env_lines = [];
+                foreach ($relations as $relation) {
+                    $iterator = $DB->request([
+                        'FROM'   => Appliance_Item_Relation::getTable(),
+                        'WHERE'  => [
+                            Appliance_Item::getForeignKeyField() => $relation['id'],
+                        ],
+                    ]);
+
+                    // The inner loop used to reuse $row, the variable of the outer loop, so the
+                    // link row was overwritten by the last relation read.
+                    foreach ($iterator as $relation_row) {
+                        $envtype = $relation_row['itemtype'];
+                        // Database-driven class name, and the environment may live in
+                        // another entity: validate the class, then the read right.
+                        if (!is_a($envtype, CommonDBTM::class, true)) {
+                            continue;
+                        }
+                        $env = new $envtype();
+                        if (!$env->can((int) $relation_row['items_id'], READ)) {
+                            continue;
+                        }
+                        // Icon class is DB data escaped by Twig; getLink() returns trusted framework markup.
+                        $env_lines[] = [
+                            'icon' => $env->getIcon(),
+                            'link' => $env->getLink(),
+                        ];
+                    }
+                }
+                if (!empty($env_lines)) {
+                    $blocks[] = [
+                        'kind'  => 'links',
+                        'lines' => $env_lines,
+                    ];
+                }
+
+                if ($itemtype == "Computer") {
+                    $blocks[] = [
+                        'kind'  => 'text',
+                        'value' => Dropdown::getDropdownName("glpi_computertypes", $object->fields['computertypes_id']),
+                    ];
+                } elseif ($itemtype == "NetworkEquipment") {
+                    $blocks[] = [
+                        'kind'  => 'text',
+                        'value' => Dropdown::getDropdownName("glpi_networkequipmenttypes", $object->fields['networkequipmenttypes_id']),
+                    ];
+                }
+
+                if ($itemtype == "Computer") {
+                    $iterator = Item_OperatingSystem::getFromItem($object);
+                    $os_lines = [];
+                    foreach ($iterator as $row) {
+                        $os_lines[] = [
+                            'name'         => $row['name'],
+                            'version'      => $row['version'],
+                            'architecture' => $row['architecture'],
+                        ];
+                    }
+                    if (!empty($os_lines)) {
+                        $blocks[] = [
+                            'kind'  => 'os',
+                            'lines' => $os_lines,
+                        ];
+                    }
+                }
+
+                $ips = [];
+                $ip  = new IPAddress();
+                foreach ($DB->request(['FROM' => 'glpi_networkports', 'WHERE' => ['itemtype' => $itemtype,
+                    'items_id' => $items_id]]) as $netname) {
+                    foreach ($DB->request(['FROM' => 'glpi_networknames', 'WHERE' => ['itemtype' => 'NetworkPort',
+                        'items_id' => $netname['id']]]) as $dataname) {
+                        foreach ($DB->request(['FROM' => 'glpi_ipaddresses', 'WHERE' => ['itemtype' => 'NetworkName',
+                            'items_id' => $dataname['id']]]) as $data) {
+                            $ip->getFromDB($data['id']);
+
+                            if ($ip->getName() != "127.0.0.1" && $ip->fields['version'] != 6) {
+                                $ips[] = $ip->getName();
+                            }
+                        }
+                    }
+                }
+                if (!empty($ips)) {
+                    $blocks[] = [
+                        'kind' => 'iplist',
+                        'ips'  => $ips,
+                    ];
+                }
+
+                $cards[] = [
+                    'width_class'   => 'w-25',
+                    'icon'          => 'ti ' . $card_icon,
+                    'icon_size'     => '3em',
+                    'top_right_html' => $delete_html,
+                    'title_html'    => $object->getLink(),
+                    'blocks'        => $blocks,
+                    'edit_html'     => Dashboard::getCardEditHtml($object, (int) $id),
+                ];
+            }
+
+            if (empty($cards)) {
+                // Every item of this type was filtered out: do not even disclose that
+                // the appliance is linked to items of that type.
+                continue;
+            }
+
+            TemplateRenderer::getInstance()->display('@webapplications/webapplication_object_cards.html.twig', [
+                'group_header' => true,
+                'group_icon'   => $object->getIcon(),
+                'group_title'  => $object->getTypeName(2),
+                'cards'        => $cards,
+            ]);
+        }
+    }
+}

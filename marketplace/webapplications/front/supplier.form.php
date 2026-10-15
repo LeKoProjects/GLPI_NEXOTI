@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * webapplications plugin for GLPI
+ * Copyright (C) 2015-2026 by the webapplications Development Team.
+ *
+ * https://github.com/InfotelGLPI/webapplications
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of webapplications.
+ *
+ * webapplications is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * webapplications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+if (!isset($_GET["id"])) {
+    $_GET["id"] = "";
+}
+if (!isset($_GET["withtemplate"])) {
+    $_GET["withtemplate"] = "";
+}
+
+if (isset($_GET['_in_modal'])) {
+    Html::popHeader(Supplier::getTypeName(2), $_SERVER['PHP_SELF']);
+    $_SESSION['reload'] = true;
+    Supplier::displayFullPageForItem($_GET['id']);
+    Html::popFooter();
+}

@@ -1,0 +1,118 @@
+{#
+ # -------------------------------------------------------------------------
+ # webapplications plugin for GLPI
+ # Copyright (C) 2015-2026 by the webapplications Development Team.
+ #
+ # https://github.com/InfotelGLPI/webapplications
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of webapplications.
+ #
+ # webapplications is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # webapplications is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ # --------------------------------------------------------------------------
+ #}
+
+{% import "components/form/fields_macros.html.twig" as fields %}
+
+{% set bg = "" %}
+{% if item.isDeleted() %}
+    {% set bg = "asset-deleted" %}
+{% endif %}
+
+    {% set rand = random() %}
+    {% set params  = params ?? [] %}
+    {% set target       = params['target'] ?? item.getFormURL() %}
+    {% set withtemplate = params['withtemplate'] ?? "" %}
+    {% set item_type = item.getType() %}
+
+
+    {{ fields.dropdownField(
+        "GlpiPlugin\Webapplications\Webapplicationexternalexposition",
+        "webapplicationexternalexpositions_id",
+        item.fields['webapplicationexternalexpositions_id'],
+        "GlpiPlugin\Webapplications\Webapplicationexternalexposition"|itemtype_name,
+        {'align_label_right' : false,}
+    ) }}
+
+
+{{ fields.smallTitle(__('Security Needs', 'webapplications')) }}
+<table>
+    <tbody>
+    <tr>
+        <td>
+                {{ fields.dropdownNumberField(
+                    'webapplicationavailabilities',
+                    item.fields['webapplicationavailabilities'],
+                    __('Availability', 'webapplications'),
+                    {
+                        'min'            : 1,
+                        'max'            : 4,
+                        'step'           : 1,
+                        'field_class': 'col-12',
+                        'label_class': 'col-xxl-8',
+                        'input_class': 'col-xxl-4',}
+                ) }}
+
+        </td>
+        <td>
+                {{ fields.dropdownNumberField(
+
+                    'webapplicationintegrities',
+                    item.fields['webapplicationintegrities'],
+                    __('Integrity', 'webapplications'),
+                    {
+                        'min'            : 1,
+                        'max'            : 4,
+                        'step'           : 1,
+                        'field_class'    : 'col-12',
+                        'label_class'    : 'col-xxl-8',
+                        'input_class'    : 'col-xxl-4',}
+                ) }}
+        </td>
+        <td>
+                {{ fields.dropdownNumberField(
+                    'webapplicationconfidentialities',
+                    item.fields['webapplicationconfidentialities'],
+                    __('Confidentiality', 'webapplications'),
+                    {
+                        'min'            : 0,
+                        'max'            : 4,
+                        'step'           : 1,
+                        'field_class': 'col-12',
+                        'label_class': 'col-xxl-8',
+                        'input_class': 'col-xxl-4',}
+                ) }}
+
+        </td>
+        <td>
+                {{ fields.dropdownNumberField(
+                    'webapplicationtraceabilities',
+                    item.fields['webapplicationtraceabilities'],
+                    __('Traceability', 'webapplications'),
+                    {
+                        'min'            : 1,
+                        'max'            : 4,
+                        'step'           : 1,
+                        'field_class': 'col-12',
+                        'label_class': 'col-xxl-8',
+                        'input_class': 'col-xxl-4',}
+                ) }}
+        </td>
+
+    </tr>
+    <input type="hidden" name="appliances_id" value="{{ params['appliances_id'] }}">
+    </tbody>
+</table>

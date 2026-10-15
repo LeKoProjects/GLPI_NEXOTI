@@ -1,0 +1,110 @@
+{#
+ # -------------------------------------------------------------------------
+ # webapplications plugin for GLPI
+ # Copyright (C) 2015-2026 by the webapplications Development Team.
+ #
+ # https://github.com/InfotelGLPI/webapplications
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of webapplications.
+ #
+ # webapplications is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # webapplications is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ # --------------------------------------------------------------------------
+ #}
+
+{% import "components/form/fields_macros.html.twig" as fields %}
+
+{% extends "generic_show_form.html.twig" %}
+
+{% block more_fields %}
+
+    {{ fields.noLabelField(
+        html_side
+    ) }}
+
+
+    {% if readlonly == true %}
+        {{ fields.htmlField(
+            'transmitter',
+            linkTransmitter,
+            __('Source', 'webapplications'),
+        ) }}
+    {% else %}
+        {{ fields.dropdownItemsFromItemtypes(
+            'transmitter',
+            __('Source', 'webapplications'),
+            {'items_id_name': 'transmitter',
+                'itemtype_name': 'transmitter_type',
+                'itemtypes': params['stream_types']}
+        ) }}
+        {{ fields.htmlField(
+            'transmitter',
+            params['linkTransmitter'],
+            __('')
+        ) }}
+    {% endif %}
+
+    {% if readlonly == true %}
+        {{ fields.htmlField(
+            'receiver',
+            linkReceiver,
+            __('Destination', 'webapplications'),
+        ) }}
+    {% else %}
+        {{ fields.dropdownItemsFromItemtypes(
+            'receiver',
+            __('Destination', 'webapplications'),
+            {'items_id_name': 'receiver',
+                'itemtype_name': 'receiver_type',
+                'itemtypes': params['stream_types']}
+        ) }}
+        {{ fields.htmlField(
+            'receiver',
+            params['linkReceiver'],
+            __('')
+        ) }}
+    {% endif %}
+
+    {{ fields.sliderField(
+        "encryption",
+        item.fields['encryption'],
+        __('Encryption', 'webapplications'),
+    ) }}
+
+    {{ fields.autoNameField(
+        'encryption_type',
+        item,
+        __('Encryption type', 'webapplications'),
+        withtemplate
+    ) }}
+
+    {{ fields.autoNameField(
+        'port',
+        item,
+        __('Port', 'webapplications'),
+        withtemplate
+    ) }}
+
+    {{ fields.autoNameField(
+        'protocol',
+        item,
+        __('Protocol', 'webapplications'),
+        withtemplate
+    ) }}
+
+    <input type="hidden" name="appliances_id" value="{{ params['appliances_id'] }}">
+{% endblock %}
+

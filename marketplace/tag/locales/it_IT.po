@@ -1,0 +1,78 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+# Davide Foschi (Argaar TantaRes) <argaar@gmail.com>, 2016
+# Davide <spam@habilitas.it>, 2024
+# Davide <spam@habilitas.it>, 2019
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI Plugin - Tag\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-12-02 00:46+0000\n"
+"PO-Revision-Date: 2015-09-18 12:56+0000\n"
+"Last-Translator: Davide <spam@habilitas.it>, 2024\n"
+"Language-Team: Italian (Italy) (http://app.transifex.com/teclib/glpi-plugin-tag/language/it_IT/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: it_IT\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#: hook.php:191 hook.php:288
+msgid "Add tags"
+msgstr "Aggiungi Etichetta"
+
+#: inc/tag.class.php:358
+msgid "HTML color"
+msgstr "Colore HTML"
+
+#: setup.php:126
+msgctxt "filters"
+msgid "If the item has a tag"
+msgstr "Se l'oggetto ha un'etichetta"
+
+#: setup.php:130
+msgctxt "filters"
+msgid "If the item is tagged"
+msgstr "Se l'oggetto ha un'etichetta"
+
+#: ajax/tag.php:66
+msgid "Missing parameters"
+msgstr "Parametri mancanti"
+
+#: hook.php:193
+msgid "Remove tags"
+msgstr "Rimuovi etichetta"
+
+#: inc/tag.class.php:43 inc/tag.class.php:480
+msgid "Tag"
+msgid_plural "Tags"
+msgstr[0] "Etichetta"
+msgstr[1] "Etichette"
+msgstr[2] "Etichette"
+
+#: setup.php:169 inc/config.class.php:39 inc/config.class.php:56
+msgid "Tag Management"
+msgstr "Gestione Tag"
+
+#: inc/profile.class.php:35 inc/profile.class.php:65
+msgid "Tag management"
+msgstr "Gestione etichette"
+
+#: ajax/tag.php:49
+msgid "Tags have been updated"
+msgstr "Le etichette sono state aggiornate"
+
+#: ajax/tag.php:57
+msgid "Tags have not been updated"
+msgstr "Le etichete non sono state aggiornate"
+
+#: inc/config.class.php:57
+msgid "Tags location"
+msgstr "Posizione delle etichette"
+
+#: inc/tag.class.php:737
+msgid "View all tags"
+msgstr "Visualizza tutte le etichette"

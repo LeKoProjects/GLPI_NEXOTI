@@ -1,0 +1,132 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * accounts plugin for GLPI
+ * Copyright (C) 2015-2026 by the accounts Development Team.
+ *
+ * https://github.com/InfotelGLPI/accounts
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of accounts.
+ *
+ * accounts is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * accounts is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with accounts. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+use Glpi\Exception\Http\AccessDeniedHttpException;
+use GlpiPlugin\Accounts\Account;
+use GlpiPlugin\Accounts\AccountCrypto;
+use GlpiPlugin\Accounts\Hash;
+
+if (!isset($_GET["id"])) {
+    $_GET["id"] = "";
+}
+
+Session::checkRight("plugin_accounts_hash", READ);
+
+$hashClass = new Hash();
+$dbu       = new DbUtils();
+
+$update = 0;
+if ($dbu->countElementsInTable("glpi_plugin_accounts_accounts") > 0) {
+    $update = 1;
+}
+
+if (isset($_POST["add"])) {
+    $hashClass->check(-1, CREATE, $_POST);
+    $newID = $hashClass->add($_POST);
+    $hashClass->redirectToList();
+} elseif (isset($_POST["update"]) && $_POST["hash"]) {
+    $hashClass->check($_POST['id'], UPDATE);
+    $hashClass->update($_POST);
+    Html::back();
+} elseif (isset($_POST["purge"])) {
+    $hashClass->check($_POST['id'], DELETE);
+    $hashClass->delete($_POST);
+    $hashClass->redirectToList();
+} elseif (isset($_POST['updatehash'])) {
+
+    // Mass re-encryption of every password/TOTP secret of the entity: require the UPDATE right,
+    // like the other write branches (the READ header check alone is not enough for a write operation).
+    Session::checkRight("plugin_accounts_hash", UPDATE);
+
+    if (isset($_POST["aeskeynew"]) && isset($_POST["aeskey"])) {
+        if ($hashClass->getFromDB($_POST["id"])) {
+            // The UPDATE right can be recursive/global: restrict the targeted hash to an
+            // entity the user actually has access to, so it can't rotate another entity's key.
+            // A recursive hash defined in a parent entity is reachable from its sub-entities,
+            // as in Report::loadReachableHash() and getHashOnSelectEncryptionKey.php.
+            if (!Session::haveAccessToEntity(
+                $hashClass->fields['entities_id'],
+                (bool) $hashClass->fields['is_recursive'],
+            )) {
+                throw new AccessDeniedHttpException();
+            }
+            $oldAeskey = $_POST["aeskey"];
+            $storedHash = $hashClass->fields['hash'];
+
+            // Verify the typed old key against the stored verifier. Handles both the new
+            // salted PBKDF2 format and legacy double SHA-256 (see AccountCrypto::verify).
+            if (!AccountCrypto::verify($oldAeskey, (string) $storedHash)) {
+                Session::addMessageAfterRedirect(
+                    __s('Wrong encryption key', 'accounts'),
+                    true,
+                    ERROR,
+                );
+                Html::back();
+            } elseif (mb_strlen((string) $_POST["aeskeynew"]) < AccountCrypto::MIN_KEY_LENGTH) {
+                // One key opens every account of the entity, and everyone allowed to read one of
+                // them is handed the material to attack it offline. Refusing a short new key is
+                // the only lever the server has over that. See AccountCrypto::MIN_KEY_LENGTH.
+                Session::addMessageAfterRedirect(
+                    sprintf(
+                        __s('The encryption key must be at least %d characters long', 'accounts'),
+                        AccountCrypto::MIN_KEY_LENGTH,
+                    ),
+                    true,
+                    ERROR,
+                );
+                Html::back();
+            } else {
+                // Right key, long enough new one: rotate.
+                // updateHash() rolls its transaction back and answers false when a record could
+                // not be re-encrypted: it has already explained which one, so announcing a
+                // successful rotation on top of that would be plainly wrong.
+                if (Hash::updateHash($_POST["aeskey"], $_POST["aeskeynew"], $_POST["id"])) {
+                    Session::addMessageAfterRedirect(
+                        __s('Encryption key modified', 'accounts'),
+                        true,
+                    );
+                }
+                Html::back();
+            }
+        }
+    } else {
+        Session::addMessageAfterRedirect(
+            __s('The old or the new encryption key can not be empty', 'accounts'),
+            true,
+            ERROR,
+        );
+        Html::back();
+    }
+} else {
+    Html::header(Account::getTypeName(2), '', "admin", Account::class, "hash");
+
+    $options = ["id" => $_GET['id'], "update" => false];
+    $hashClass->display($options);
+    Html::footer();
+}

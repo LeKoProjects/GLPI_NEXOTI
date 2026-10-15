@@ -1,0 +1,19 @@
+{
+    "require": {
+        "php": ">=8.2"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.2.99"
+        },
+        "sort-packages": true,
+        "autoloader-suffix": "PluginNews"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Glpi\\Tools\\": "../../tools/src/",
+            "GlpiPlugin\\News\\Tests\\": "tests/"
+        }
+    }
+}

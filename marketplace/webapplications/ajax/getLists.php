@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * webapplications plugin for GLPI
+ * Copyright (C) 2015-2026 by the webapplications Development Team.
+ *
+ * https://github.com/InfotelGLPI/webapplications
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of webapplications.
+ *
+ * webapplications is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * webapplications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+use Glpi\Exception\Http\AccessDeniedHttpException;
+use GlpiPlugin\Webapplications\Dashboard;
+
+header("Content-Type: text/html; charset=UTF-8");
+Html::header_nocache();
+
+Session::checkRight(Dashboard::$rightname, READ);
+
+if (isset($_POST['value'])
+    && $_POST['value'] > 0) {
+    $appliances_id = (int) $_POST['value'];
+    // The appliance id is user-controlled and is later read back from session by the tab
+    // renderers (Dashboard::showList) without re-checking. Enforce object-level right +
+    // entity access here, before storing it in session.
+    if (!(new \Appliance())->can($appliances_id, READ)) {
+        throw new AccessDeniedHttpException();
+    }
+    $_SESSION['plugin_webapplications_loaded_appliances_id'] = $appliances_id;
+    $dashboard = new Dashboard();
+    $dashboard->display(['id' => 1, 'appliances_id' => $_SESSION['plugin_webapplications_loaded_appliances_id']]);
+}

@@ -1,0 +1,71 @@
+{#
+ # -------------------------------------------------------------------------
+ # webapplications plugin for GLPI
+ # Copyright (C) 2015-2026 by the webapplications Development Team.
+ #
+ # https://github.com/InfotelGLPI/webapplications
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of webapplications.
+ #
+ # webapplications is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # webapplications is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ # --------------------------------------------------------------------------
+ #}
+
+{% import 'components/form/fields_macros.html.twig' as fields %}
+{% set params  = params ?? [] %}
+{% set field_options = {
+    'full_width': true,
+    'add_field_class': (is_expanded ? 'col-sm-12' : ''),
+} %}
+
+{% block more_fields %}
+
+    {# fields.htmlField() prints its value with |raw: it is an HTML sink, not a text field.
+     # Every value below is therefore built and escaped in
+     # Appliance::showSupportPartFromDashboard() - editorlink carries the getLink() markup and
+     # is empty when the caller may not read the supplier, the mail and the phone number go
+     # through htmlescape(). The get_item() call that used to resolve the supplier here is gone:
+     # that Twig function does a bare getFromDB(), with neither right nor entity check, so it
+     # re-read the row the PHP side may have just refused. #}
+    {{ fields.htmlField(
+        'editor',
+        params['editorlink'],
+        __("Referent editor", 'webapplications'),
+        field_options|merge({
+            'add_field_class': 'col-sm-12',
+        })
+    ) }}
+
+    {{ fields.htmlField(
+        "email",
+        params['editoremail'],
+        __("Mail support", 'webapplications'),
+        field_options|merge({
+            'add_field_class': 'col-sm-12',
+        })
+    ) }}
+
+    {{ fields.htmlField(
+        "phonenumber",
+        params['editorephonenumber'],
+        __("Phone support", 'webapplications'),
+        field_options|merge({
+            'add_field_class': 'col-sm-12',
+        })
+    ) }}
+
+{% endblock %}

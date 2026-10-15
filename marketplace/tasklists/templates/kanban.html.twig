@@ -1,0 +1,81 @@
+{#
+ # -------------------------------------------------------------------------
+ # tasklists plugin for GLPI
+ # Copyright (C) 2016-2026 by the tasklists Development Team.
+ #
+ # https://github.com/InfotelGLPI/tasklists
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of tasklists.
+ #
+ # tasklists is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # tasklists is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with tasklists. If not, see <http://www.gnu.org/licenses/>.
+ # --------------------------------------------------------------------------
+ #}
+
+{% import 'components/form/fields_macros.html.twig' as fields %}
+{% import 'components/form/modals_macros.html.twig' as modals %}
+
+{% if rights is not defined %}
+   {% set rights = {
+      'create_item': false,
+      'delete_item': false,
+      'create_column': false,
+      'modify_view': false,
+      'order_card': false,
+      'create_card_limited_columns': [0],
+   } %}
+{% endif %}
+
+<div id="kanban" class="kanban"></div>
+{{ modals.modal('', '', {
+   'id': 'kanban-modal'
+}) }}
+
+{% for supported_itemtype, info in supported_itemtypes %}
+   <template id="kanban-teammember-item-dropdown-{{ supported_itemtype }}">
+      {{ fields.dropdownArrayField('role', null, info.team_roles, __('Role')) }}
+      {{ fields.dropdownItemsFromItemtypes('add-teammember', '', {
+         'itemtypes': info.team_itemtypes
+      }) }}
+   </template>
+{% endfor %}
+
+{# Encoding flags for the payloads spliced into the script block below. The bare 64
+   (JSON_UNESCAPED_SLASHES) they used to carry leaves "<" and "&" untouched, so a free-text
+   value added later to any of these arrays - a custom column label, a filter name - would
+   be able to close the <script> element and run as markup. JSON_HEX_TAG and JSON_HEX_AMP
+   encode both characters and cost nothing, JSON.parse reading them back unchanged.
+   JSON_HEX_QUOT and JSON_HEX_APOS are deliberately left out: they would break the object
+   literal these values are pasted into. #}
+{% set json_flags = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') %}
+<script>
+   $(function(){
+      // Create Kanban
+      var kanban = new GLPIKanban({
+         root_taslists: "{{ root_tasklists }}",
+         element: "#{{ kanban_id|default('kanban') }}",
+         rights: {{ rights|json_encode(json_flags)|raw }},
+         supported_itemtypes: {{ supported_itemtypes|json_encode(json_flags)|raw }},
+         max_team_images: 3,
+         column_field: {{ column_field|json_encode(json_flags)|raw }},
+         background_refresh_interval: {{ background_refresh_interval|default(session('glpirefresh_views')) }},
+         item: {{ item|json_encode(json_flags)|raw }},
+         supported_filters: {{ supported_filters|json_encode(json_flags)|raw }}
+      });
+      // Create kanban elements and add data
+      kanban.init();
+   });
+</script>

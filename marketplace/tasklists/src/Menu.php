@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * tasklists plugin for GLPI
+ * Copyright (C) 2016-2026 by the tasklists Development Team.
+ *
+ * https://github.com/InfotelGLPI/tasklists
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of tasklists.
+ *
+ * tasklists is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tasklists is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tasklists. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+namespace GlpiPlugin\Tasklists;
+
+use CommonGLPI;
+use Session;
+
+/**
+ * Class Menu
+ */
+class Menu extends CommonGLPI
+{
+    public static $rightname = 'plugin_tasklists';
+
+    /**
+     * @param int $nb
+     *
+     * @return string
+     */
+    public static function getMenuName($nb = 1)
+    {
+        return __('Tasks list', 'tasklists');
+    }
+
+    /**
+     * @return array
+     */
+    public static function getMenuContent()
+    {
+
+        $menu          = [];
+        $menu['title'] = self::getMenuName(2);
+        $menu['page']  = Kanban::getSearchURL(false) ;
+
+        $menu['links']['search'] = Task::getSearchURL(false);
+        if (Task::canCreate()) {
+            $menu['links']['add']      = PLUGIN_TASKLISTS_WEBDIR . '/front/setup.templates.php?add=1';
+            $menu['links']['template'] = PLUGIN_TASKLISTS_WEBDIR . '/front/setup.templates.php?add=0';
+        }
+        $menu['links']['summary'] = Kanban::getSearchURL(false);
+
+        $image                 = "<i class='ti ti-checklist pointer' title='" . Task::getTypeName(Session::getPluralNumber()) . "'></i>&nbsp;" . Task::getTypeName(Session::getPluralNumber());
+        $menu['links'][$image] = Task::getSearchURL(false);
+
+        $menu['icon']    = self::getIcon();
+
+        return $menu;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getIcon()
+    {
+        return "ti ti-layout-kanban";
+    }
+
+    public static function removeRightsFromSession()
+    {
+        if (isset($_SESSION['glpimenu']['helpdesk']['types'][Menu::class])) {
+            unset($_SESSION['glpimenu']['helpdesk']['types'][Menu::class]);
+        }
+        if (isset($_SESSION['glpimenu']['helpdesk']['content'][Menu::class])) {
+            unset($_SESSION['glpimenu']['helpdesk']['content'][Menu::class]);
+        }
+    }
+}

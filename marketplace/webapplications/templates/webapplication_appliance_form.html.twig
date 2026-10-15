@@ -1,0 +1,260 @@
+{#
+ # -------------------------------------------------------------------------
+ # webapplications plugin for GLPI
+ # Copyright (C) 2015-2026 by the webapplications Development Team.
+ #
+ # https://github.com/InfotelGLPI/webapplications
+ # -------------------------------------------------------------------------
+ #
+ # LICENSE
+ #
+ # This file is part of webapplications.
+ #
+ # webapplications is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 3 of the License, or
+ # (at your option) any later version.
+ #
+ # webapplications is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+ #
+ # You should have received a copy of the GNU General Public License
+ # along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ # --------------------------------------------------------------------------
+ #}
+
+{% import "components/form/fields_macros.html.twig" as fields %}
+
+{% set bg = "" %}
+{% if item.isDeleted() %}
+    {% set bg = "asset-deleted" %}
+{% endif %}
+
+    {% set rand = random() %}
+    {% set params  = params ?? [] %}
+    {% set target       = params['target'] ?? item.getFormURL() %}
+    {% set withtemplate = params['withtemplate'] ?? "" %}
+    {% set item_type = item.getType() %}
+
+<div class="card-body d-flex">
+    <div class="col-12 col-xxl-{{ params['hasPicture'] ? '9' : '12' }} flex-column">
+        <div class="d-flex flex-row flex-wrap flex-xl-nowrap">
+            <div class="row flex-row align-items-start flex-grow-1">
+                <div class="row flex-row">
+                    {% if item.isField('address') %}
+                        {{ fields.autoNameField(
+                            'address',
+                            item,
+                            __('URL'),
+                            withtemplate
+                        ) }}
+                    {% endif %}
+
+                    {% if item.isField('backoffice') %}
+                        {{ fields.autoNameField(
+                            'backoffice',
+                            item,
+                            __('Backoffice URL', 'webapplications'),
+                            withtemplate
+                        ) }}
+                    {% endif %}
+
+                    {% if item.isField('version') %}
+                        {{ fields.autoNameField(
+                            'version',
+                            item,
+                            __('Installed version', 'webapplications'),
+                            withtemplate
+                        ) }}
+                    {% endif %}
+
+                    {% if item.isField('webapplicationservertypes_id') %}
+                        {{ fields.dropdownField(
+                            "GlpiPlugin\Webapplications\Webapplicationservertype",
+                            "webapplicationservertypes_id",
+                            item.fields['webapplicationservertypes_id'],
+                            "GlpiPlugin\Webapplications\Webapplicationservertype"|itemtype_name,
+                        ) }}
+                    {% endif %}
+
+                    {% if item.isField('webapplicationtechnics_id') %}
+                        {{ fields.dropdownField(
+                            "GlpiPlugin\\Webapplications\\Webapplicationtechnic",
+                            "webapplicationtechnics_id",
+                            item.fields['webapplicationtechnics_id'],
+                            "GlpiPlugin\\Webapplications\\Webapplicationtechnic"|itemtype_name,
+                        ) }}
+                    {% endif %}
+
+                    {% if item.isField('webapplicationexternalexpositions_id') %}
+                        {{ fields.dropdownField(
+                            "GlpiPlugin\\Webapplications\\Webapplicationexternalexposition",
+                            "webapplicationexternalexpositions_id",
+                            item.fields['webapplicationexternalexpositions_id'],
+                            "GlpiPlugin\\Webapplications\\Webapplicationexternalexposition"|itemtype_name,
+                        ) }}
+                    {% endif %}
+
+                    {{ fields.dropdownArrayField(
+                        'number_users',
+                        item.fields['number_users'],
+                        nbusers,
+                        __('Number of users', 'webapplications'),
+
+                    ) }}
+
+                </div> {# .row #}
+            </div> {# .row #}
+        </div> {# .flex-row #}
+    </div>
+</div> {# .card-body #}
+
+<div class="card-body d-flex">
+    <div class="col-12 col-xxl-12 flex-column">
+        <div class="d-flex flex-row flex-wrap flex-xl-nowrap">
+            <div class="row flex-row align-items-start flex-grow-1">
+                <div class="row flex-row">
+                    <div class="card border-0 shadow-none p-0 m-0 {{ margins }}">
+                        <div class="card-body">
+                            <h3 class="card-header">
+                                {{ __('Security Needs', 'webapplications') }}
+
+                                {% set info  = __("DICT Criteria:
+Availability (A): Identify the impact on the availability of the IT asset as a result of the change
+Integrity (I): Identify the impact on the data managed by the IT asset
+Confidentiality (C): Identify the impact on the IT asset's processing related to data confidentiality
+Traceability (T): Identify the impact on the IT asset's processes related to data traceability",'webapplications') %}
+                                <i class="ti ti-info-circle fa-fw"
+                                   title="{{ info }}"></i>
+                            </h3>
+                        </div>
+                        <div class="card-body row flex-row">
+                            <table style="width: 100%;">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        {% if item.isField('webapplicationavailabilities') %}
+                                            {{ fields.dropdownNumberField(
+                                                'webapplicationavailabilities',
+                                                item.fields['webapplicationavailabilities'],
+                                                __('Availability', 'webapplications'),
+                                                {
+                                                    'min'            : 1,
+                                                    'max'            : 4,
+                                                    'step'           : 1,
+                                                    'field_class': 'col-12',
+                                                    'label_class': 'col-xxl-8',
+                                                    'input_class': 'col-xxl-4',}
+                                            ) }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if item.isField('webapplicationintegrities') %}
+                                            {{ fields.dropdownNumberField(
+                                                'webapplicationintegrities',
+                                                item.fields['webapplicationintegrities'],
+                                                __('Integrity', 'webapplications'),
+                                                {
+                                                    'min'            : 1,
+                                                    'max'            : 4,
+                                                    'step'           : 1,
+                                                    'field_class'    : 'col-12',
+                                                    'label_class'    : 'col-xxl-8',
+                                                    'input_class'    : 'col-xxl-4',}
+                                            ) }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if item.isField('webapplicationconfidentialities') %}
+                                            {{ fields.dropdownNumberField(
+                                                'webapplicationconfidentialities',
+                                                item.fields['webapplicationconfidentialities'],
+                                                __('Confidentiality', 'webapplications'),
+                                                {
+                                                    'min'            : 0,
+                                                    'max'            : 4,
+                                                    'step'           : 1,
+                                                    'field_class': 'col-12',
+                                                    'label_class': 'col-xxl-8',
+                                                    'input_class': 'col-xxl-4',}
+                                            ) }}
+                                        {% endif %}
+
+                                    </td>
+                                    <td>
+                                        {% if item.isField('webapplicationtraceabilities') %}
+                                            {{ fields.dropdownNumberField(
+                                                'webapplicationtraceabilities',
+                                                item.fields['webapplicationtraceabilities'],
+                                                __('Traceability', 'webapplications'),
+                                                {
+                                                    'min'            : 1,
+                                                    'max'            : 4,
+                                                    'step'           : 1,
+                                                    'field_class': 'col-12',
+                                                    'label_class': 'col-xxl-8',
+                                                    'input_class': 'col-xxl-4',}
+                                            ) }}
+                                        {% endif %}
+                                    </td>
+
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-none p-0 m-0 {{ margins }}">
+                        <div class="card-body">
+                            <h3 class="card-header">
+                                {{ __('Validation', 'webapplications') }}
+                            </h3>
+                        </div>
+                        <div class="card-body row flex-row">
+
+                            {% if item.isField('webapplicationreferringdepartmentvalidation') %}
+                                {{ fields.sliderField(
+                                    "webapplicationreferringdepartmentvalidation",
+                                    item.fields['webapplicationreferringdepartmentvalidation'],
+                                    __('Validation of the request by the referring Department', 'webapplications'),
+                                ) }}
+                            {% endif %}
+
+                            {% if item.isField('webapplicationciovalidation') %}
+                                {{ fields.sliderField(
+                                    "webapplicationciovalidation",
+                                    item.fields['webapplicationciovalidation'],
+                                    __('Validation by CISO', 'webapplications'),
+                                ) }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-none p-0 m-0 {{ margins }}">
+                        <div class="card-body">
+                            <h3 class="card-header">
+                                {{ __('Support', 'webapplications') }}
+                            </h3>
+                        </div>
+                        <div class="card-body row flex-row">
+                            <div id="support">
+                                {% if item.isField('editor') %}
+                                    {{ fields.dropdownField(
+                                        "Supplier",
+                                        "editor",
+                                        item.fields['editor'],
+                                        __('Referent editor', 'webapplications'),
+                                    ) }}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div> {# .row #}
+            </div> {# .row #}
+        </div> {# .flex-row #}
+    </div>
+</div> {# .card-body #}

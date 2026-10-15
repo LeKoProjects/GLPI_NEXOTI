@@ -1,0 +1,21 @@
+# Files
+files/_cache/*
+files/_sessions/*
+files/_dumps/*
+files/_log/*
+files/tmp/*
+
+# Config sensível
+config/config_db.php
+config/local_define.php
+
+# Vendor (pesado, gerado pelo composer)
+vendor/
+node_modules/
+
+# Logs Apache
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

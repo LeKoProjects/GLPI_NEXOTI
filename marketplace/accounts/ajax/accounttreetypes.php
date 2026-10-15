@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * accounts plugin for GLPI
+ * Copyright (C) 2015-2026 by the accounts Development Team.
+ *
+ * https://github.com/InfotelGLPI/accounts
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of accounts.
+ *
+ * accounts is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * accounts is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with accounts. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+use GlpiPlugin\Accounts\Account;
+
+header("Content-Type: application/json; charset=UTF-8");
+Html::header_nocache();
+
+Session::checkRight("plugin_accounts", READ);
+
+// fancytree asks for the root level without a node key, then for the key of the node it
+// lazy-loads. Account::getTreeNodes() validates that key and applies the same visibility
+// criteria as the account list, so the endpoint stays a thin dispatcher.
+echo json_encode(Account::getTreeNodes($_GET['node'] ?? '-1'));

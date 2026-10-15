@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * webapplications plugin for GLPI
+ * Copyright (C) 2015-2026 by the webapplications Development Team.
+ *
+ * https://github.com/InfotelGLPI/webapplications
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of webapplications.
+ *
+ * webapplications is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * webapplications is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with webapplications. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+use Glpi\Exception\Http\BadRequestHttpException;
+use GlpiPlugin\Webapplications\Config;
+
+$config = new Config();
+Session::checkRightsOr(Config::$rightname, [READ, UPDATE]);
+
+if (isset($_POST["add"])) {
+    Session::checkRight(Config::$rightname, CREATE);
+    // Only accept a "fields" token that belongs to the server-side whitelist rendered in
+    // the config dropdown; reject any forged value before splitting and persisting it.
+    if (!array_key_exists($_POST["fields"] ?? '', Config::getFieldsChoices())) {
+        throw new BadRequestHttpException();
+    }
+    $fields = explode('|', $_POST["fields"]);
+    $_POST['fields_description_table'] = $fields[0];
+    $_POST['fields_description_name'] = $fields[1];
+    $config->add($_POST);
+    Html::back();
+} elseif (isset($_POST["update"])) {
+    Session::checkRight(Config::$rightname, UPDATE);
+    // Only accept a "fields" token that belongs to the server-side whitelist rendered in
+    // the config dropdown; reject any forged value before splitting and persisting it.
+    if (!array_key_exists($_POST["fields"] ?? '', Config::getFieldsChoices())) {
+        throw new BadRequestHttpException();
+    }
+    $fields = explode('|', $_POST["fields"]);
+    $_POST['fields_description_table'] = $fields[0];
+    $_POST['fields_description_name'] = $fields[1];
+    $config->update($_POST);
+    Html::back();
+} else {
+    Html::header(__('Setup', 'webapplications'), $_SERVER['PHP_SELF'], 'config', 'webapplications');
+
+    /* showForm() affiche seulement le formulaire */
+    $config->getFromDB(1);
+    $config->display(['id' => 1]);
+
+    Html::footer();
+}

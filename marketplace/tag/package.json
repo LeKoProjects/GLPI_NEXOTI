@@ -1,0 +1,13 @@
+{
+  "name": "@glpi-plugins/tag",
+  "description": "Tag GLPI plugin",
+  "private": true,
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "@stylistic/eslint-plugin-js": "^3.0.1",
+    "eslint": "^9.19.0",
+    "stylelint": "^16.14.1",
+    "stylelint-config-standard": "^37.0.0"
+  },
+  "scripts": {}
+}

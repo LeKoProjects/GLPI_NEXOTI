@@ -1,0 +1,117 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Shellcommands Development Team
+# This file is distributed under the same license as the GLPI - Shellcommands plugin package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Xavier CAILLAUD <thetsmr@gmail.com>, 2020
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI - Shellcommands plugin 2.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-02-25 09:32+0100\n"
+"PO-Revision-Date: 2020-11-02 13:01+0000\n"
+"Last-Translator: Xavier CAILLAUD <thetsmr@gmail.com>, 2020\n"
+"Language-Team: Spanish (Spain) (https://www.transifex.com/infotelGLPI/teams/12373/es_ES/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es_ES\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: hook.php:147 inc/shellcommand.class.php:116 inc/shellcommand.class.php:214
+#: inc/shellcommandpath.class.php:40
+msgid "Path"
+msgid_plural "Pathes"
+msgstr[0] "Ruta"
+msgstr[1] "Rutas"
+
+#: hook.php:228
+msgid "Command launch"
+msgstr "Ejecutar la orden"
+
+#: hook.php:229
+msgid "Command group launch"
+msgstr "Ejecutar grupo de órdenes"
+
+#: setup.php:65 inc/profile.class.php:101 inc/shellcommand.class.php:49
+#: inc/shellcommand.class.php:487
+msgid "Shell Command"
+msgid_plural "Shell Commands"
+msgstr[0] "Orden de consola"
+msgstr[1] "Órdenes de consola"
+
+#: inc/advanced_execution.class.php:40 inc/shellcommand.class.php:497
+msgid "Advanced execution"
+msgid_plural "Advanced executions"
+msgstr[0] "Ejecución avanzada"
+msgstr[1] "Ejecuciones avanzada"
+
+#: inc/commandgroup.class.php:40 inc/commandgroup_item.class.php:58
+#: inc/shellcommand.class.php:492
+msgid "Command group"
+msgid_plural "Command groups"
+msgstr[0] "Grupo de órdenes"
+msgstr[1] "Grupos de órdenes"
+
+#: inc/commandgroup.class.php:120
+msgid "Check command"
+msgstr "Orden de comprobación"
+
+#: inc/commandgroup_item.class.php:158
+msgid "Add a command"
+msgstr "Añadir una orden"
+
+#: inc/commandgroup_item.class.php:212
+msgid "Add a command group"
+msgstr "Añadir un grupo de orden"
+
+#: inc/commandgroup_item.class.php:398
+msgid "Order"
+msgstr "Posición"
+
+#: inc/commandgroup_item.class.php:546
+msgid "Host UP"
+msgstr "Equipo Encendido"
+
+#: inc/commandgroup_item.class.php:577
+msgid "Host DOWN"
+msgstr "Equipo Apagado"
+
+#: inc/menu.class.php:47
+msgid "Shellcommands menu"
+msgstr "Menú de órdenes de consola"
+
+#: inc/shellcommand.class.php:124 inc/shellcommand.class.php:209
+msgid "Windows"
+msgstr "Windows"
+
+#: inc/shellcommand.class.php:201
+msgid "Tag position"
+msgstr "Posición de la etiqueta"
+
+#: inc/shellcommand.class.php:203
+msgid "Before parameters"
+msgstr "Antes de los parámetros"
+
+#: inc/shellcommand.class.php:203
+msgid "After parameters"
+msgstr "Después de los parámetros"
+
+#: inc/shellcommand_item.class.php:464
+msgid "Associated Commands"
+msgstr "Órdenes asociadas"
+
+#: inc/shellcommand_item.class.php:818
+msgid "There is an error with socket creation"
+msgstr "Hay un error con la creación del socket"
+
+#: inc/shellcommand_item.class.php:857
+msgid "Magic packet sending to"
+msgstr "'Magic packet' enviado a "
+
+#: inc/shellcommand_item.class.php:859
+msgid "The packet cannot be send"
+msgstr "El paquete no se puede enviar"

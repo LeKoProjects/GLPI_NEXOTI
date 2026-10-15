@@ -1,0 +1,11 @@
+{
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "glpi-project/tools": "^0.4"
+    },
+    "require": {
+        "php": "^7.2",
+        "adldap2/adldap2": "^10.3"
+    }
+}

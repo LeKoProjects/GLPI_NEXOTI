@@ -1,0 +1,452 @@
+<?php
+
+/**
+ * -------------------------------------------------------------------------
+ * tasklists plugin for GLPI
+ * Copyright (C) 2016-2026 by the tasklists Development Team.
+ *
+ * https://github.com/InfotelGLPI/tasklists
+ * -------------------------------------------------------------------------
+ *
+ * LICENSE
+ *
+ * This file is part of tasklists.
+ *
+ * tasklists is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tasklists is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tasklists. If not, see <http://www.gnu.org/licenses/>.
+ * --------------------------------------------------------------------------
+ */
+
+namespace GlpiPlugin\Tasklists;
+
+use CommonDBTM;
+use CommonGLPI;
+use DbUtils;
+use Dropdown;
+use Glpi\Application\View\TemplateRenderer;
+use Group;
+use Group_User;
+use Session;
+use Toolbox;
+
+/**
+ * Class TypeVisibility
+ */
+class TypeVisibility extends CommonDBTM
+{
+    // Visibility rows decide which groups may use a context. The class was declared under the
+    // user right, so front/typevisibility.form.php - whose check(-1, UPDATE, $_POST) bears on
+    // this property - let any task author grant his own groups access to any context, and the
+    // massive actions of the tab let him revoke anyone else's. It is a configuration object and
+    // follows the configuration right, like TaskType and TaskState.
+    public static $rightname = 'plugin_tasklists_config';
+
+    /**
+     * @param int $nb
+     *
+     * @return string
+     */
+    public static function getTypeName($nb = 0)
+    {
+        return __('Visibility');
+    }
+
+    /**
+     * @return string
+     */
+    public static function getIcon()
+    {
+        return Task::getIcon();
+    }
+
+
+    public static $types = [TaskType::class];
+
+    /**
+     * Display tab for each users
+     *
+     * @param CommonGLPI $item
+     * @param int        $withtemplate
+     *
+     * @return array|string
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
+    {
+
+        $dbu = new DbUtils();
+        if (!$withtemplate) {
+            if ($item->getType() == TaskType::class) {
+                if ($_SESSION['glpishow_count_on_tabs']) {
+                    return self::createTabEntry(
+                        self::getTypeName(),
+                        $dbu->countElementsInTable(
+                            $this->getTable(),
+                            ["plugin_tasklists_tasktypes_id" => $item->getID()],
+                        ),
+                    );
+                }
+                return self::createTabEntry(self::getTypeName());
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Display content for each users
+     *
+     * @static
+     *
+     * @param CommonGLPI $item
+     * @param int        $tabnum
+     * @param int        $withtemplate
+     *
+     * @return bool|true
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
+    {
+        $vis = new self();
+        if (in_array($item->getType(), self::getTypes(true))) {
+            $vis->showVisibilities($item);
+        }
+        return true;
+    }
+
+
+    /**
+     * Display form
+     *
+     * @param $item
+     */
+    public function showVisibilities($item)
+    {
+
+        $used_groups = [];
+
+        $dataGroups = $this->find(['plugin_tasklists_tasktypes_id' => $item->fields['id']]);
+
+        // $item is the context the tab is displayed on, so can() tests the very row that is
+        // about to be edited: it now resolves to plugin_tasklists_config in UPDATE, TaskType
+        // having moved to the configuration right, and it still replays
+        // Session::haveAccessToEntity(), which a bare haveRight() would not.
+        $type    = new TaskType();
+        $canedit = $type->can($item->fields['id'], UPDATE);
+
+        if ($dataGroups) {
+            foreach ($dataGroups as $field) {
+                $used_groups[] = $field['groups_id'];
+            }
+        }
+
+        $groups    = [];
+        $group     = new Group();
+        $condition = [];
+        if (count($used_groups) > 0) {
+            $condition [] = ["NOT" => [
+                "id" => $used_groups,
+            ]];
+        }
+        $condition [] = getEntitiesRestrictCriteria($group->getTable(), '', $_SESSION["glpiactiveentities"], true);
+
+        $dataGroup = $group->find($condition, ['name']);
+        if ($dataGroup) {
+            foreach ($dataGroup as $field) {
+                $groups[$field['id']] = $field['completename'];
+            }
+        }
+
+        if ($canedit) {
+            $groups_field = Dropdown::showFromArray("groups_id", $groups, ['name'     => 'groups_id',
+                'width'    => '150',
+                'multiple' => true,
+                'display'  => false]);
+
+            TemplateRenderer::getInstance()->display('@tasklists/typevisibility/add_group.html.twig', [
+                'form_action'  => Toolbox::getItemTypeFormURL(self::class),
+                'tasktypes_id' => (int) $item->fields['id'],
+                'groups_field' => $groups_field,
+            ]);
+        }
+        if ($dataGroups) {
+            $this->listItems($dataGroups, $canedit);
+        }
+    }
+
+    /**
+     * @param $fields
+     * @param $canedit
+     */
+    private function listItems($fields, $canedit)
+    {
+
+        $rand = mt_rand();
+
+        $entries = [];
+        foreach ($fields as $field) {
+            $entries[] = [
+                'itemtype' => self::class,
+                'id'       => $field['id'],
+                // getDropdownName() returns the raw completename from the DB
+                // (getTreeValueCompleteName does not htmlspecialchars it), so a group named with
+                // markup would otherwise execute in the config admin's session. The column is
+                // declared raw_html below because the name may carry the > separators of a tree.
+                'name'     => htmlescape(Dropdown::getDropdownName('glpi_groups', $field['groups_id'])),
+            ];
+        }
+
+        // The hand-written table used to emit its own massive-action form and checkboxes, which
+        // GLPI 11 no longer wires up: every action came back with "no item selected". The core
+        // datatable component owns that plumbing.
+        TemplateRenderer::getInstance()->display('components/datatable.html.twig', [
+            'datatable_id'        => 'typevisibilitylist' . $rand,
+            'is_tab'              => true,
+            'nofilter'            => true,
+            'nosort'              => true,
+            'columns'             => [
+                'name' => __('Groups allowed to use context', 'tasklists'),
+            ],
+            'formatters'          => [
+                'name' => 'raw_html',
+            ],
+            'entries'             => $entries,
+            'total_number'        => count($entries),
+            'filtered_number'     => count($entries),
+            'showmassiveactions'  => $canedit,
+            'massiveactionparams' => [
+                'num_displayed' => min($_SESSION['glpilist_limit'], count($entries)),
+                'container'     => 'mass' . self::class . $rand,
+            ],
+        ]);
+    }
+
+    /**
+     * Type than could be linked to a typo
+     *
+     * @param $all boolean, all type, or only allowed ones
+     *
+     * @return array of types
+     * */
+    public static function getTypes($all = false)
+    {
+
+        if ($all) {
+            return self::$types;
+        }
+
+        // Only allowed types
+        $types = self::$types;
+        $dbu   = new DbUtils();
+        foreach ($types as $key => $type) {
+            if (!($item = $dbu->getItemForItemtype($type))) {
+                continue;
+            }
+
+            if (!$item->canView()) {
+                unset($types[$key]);
+            }
+        }
+        return $types;
+    }
+
+    /**
+     * Is the context these visibility rows belong to inside the active entities?
+     *
+     * glpi_plugin_tasklists_typevisibilities has no entities_id column - a row is nothing but a
+     * (context, group) pair - so CommonDBTM::checkEntity() has nothing to test and silently
+     * returns true. can($id, PURGE) therefore collapsed to the global plugin_tasklists_config
+     * bit, and the massive actions of the tab let a configuration administrator of one entity
+     * delete the visibility rows of a context belonging to another. Deleting them does not
+     * merely narrow access, it widens it: isUserHaveRight() returns true when a context has no
+     * row at all, so removing the last one turns a group-restricted context into a public one.
+     * The add path already validates the entity of the parent context
+     * (front/typevisibility.form.php), which is the check replayed here for the read, update and
+     * purge paths.
+     *
+     * @return bool
+     */
+    private function parentIsInScope(): bool
+    {
+        $tasktype = new TaskType();
+        return $tasktype->getFromDB((int) $this->fields['plugin_tasklists_tasktypes_id'])
+            && Session::haveAccessToEntity(
+                $tasktype->fields['entities_id'],
+                $tasktype->fields['is_recursive'],
+            );
+    }
+
+    public function canViewItem(): bool
+    {
+        return parent::canViewItem() && $this->parentIsInScope();
+    }
+
+    public function canUpdateItem(): bool
+    {
+        return parent::canUpdateItem() && $this->parentIsInScope();
+    }
+
+    public function canPurgeItem(): bool
+    {
+        return parent::canPurgeItem() && $this->parentIsInScope();
+    }
+
+    /**
+     * @param $plugin_tasklists_tasktypes_id
+     *
+     * @return bool
+     */
+    public static function isUserHaveRight($plugin_tasklists_tasktypes_id)
+    {
+        $dbu = new DbUtils();
+        // Get type groups
+        $groups_data = $dbu->getAllDataFromTable(
+            'glpi_plugin_tasklists_typevisibilities',
+            ['plugin_tasklists_tasktypes_id' => (int) $plugin_tasklists_tasktypes_id],
+        );
+        if (!empty($groups_data)) {
+            $groups_id = [];
+            foreach ($groups_data as $groups) {
+                $groups_id[] = $groups['groups_id'];
+            }
+
+            // Is the user allowed with his groups ?
+            $group_user_data = Group_User::getUserGroups(Session::getLoginUserID());
+            foreach ($group_user_data as $groups) {
+                if (in_array($groups['id'], $groups_id)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // No restrictions if no group was added in type
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    public static function seeAllowedTypes()
+    {
+
+        $allowed_types = [];
+        $dbu           = new DbUtils();
+        $types         = $dbu->getAllDataFromTable('glpi_plugin_tasklists_tasktypes');
+
+        if (!empty($types)) {
+            foreach ($types as $type) {
+                if (self::isUserHaveRight($type['id'])) {
+                    $allowed_types[] = $type['id'];
+                }
+            }
+        }
+
+        return $allowed_types;
+    }
+
+    /**
+     * @return array
+     */
+    public function rawSearchOptions()
+    {
+
+        $tab = [];
+
+        $tab[] = [
+            'id'   => 'common',
+            'name' => self::getTypeName(1),
+        ];
+
+        $tab[] = [
+            'id'            => '1',
+            'table'         => $this->getTable(),
+            'field'         => 'name',
+            'name'          => __('Name'),
+            'datatype'      => 'itemlink',
+            'itemlink_type' => $this->getType(),
+        ];
+
+        $tab[] = [
+            'id'       => '30',
+            'table'    => $this->getTable(),
+            'field'    => 'id',
+            'name'     => __('ID'),
+            'datatype' => 'number',
+        ];
+
+        $tab[] = [
+            'id'       => '92',
+            'table'    => 'glpi_groups',
+            'field'    => 'name',
+            'name'     => __('Group'),
+            'datatype' => 'dropdown',
+        ];
+
+        return $tab;
+    }
+
+    /**
+     * @param array $input
+     *
+     * @return array|bool
+     */
+    public function prepareInputForAdd($input)
+    {
+        if (!$this->checkMandatoryFields($input)) {
+            return false;
+        }
+
+        return $input;
+    }
+
+    /**
+     * @param $input
+     *
+     * @return array|bool
+     */
+    public function prepareInputForUpdate($input)
+    {
+        if (!$this->checkMandatoryFields($input)) {
+            return false;
+        }
+
+        return $input;
+    }
+
+    /**
+     * @param $input
+     *
+     * @return bool
+     */
+    public function checkMandatoryFields($input)
+    {
+        $msg     = [];
+        $checkKo = false;
+
+        $mandatory_fields = ['groups_id' => __('Group')];
+
+        foreach ($input as $key => $value) {
+            if (array_key_exists($key, $mandatory_fields)) {
+                if (empty($value)) {
+                    $msg[]   = $mandatory_fields[$key];
+                    $checkKo = true;
+                }
+            }
+        }
+
+        if ($checkKo) {
+            Session::addMessageAfterRedirect(sprintf(__("Mandatory fields are not filled. Please correct: %s"), implode(', ', $msg)), false, ERROR);
+            return false;
+        }
+        return true;
+    }
+}

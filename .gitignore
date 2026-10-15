@@ -8,6 +8,7 @@ files/tmp/*
 # Config sensível
 config/config_db.php
 config/local_define.php
+config/glpicrypt.key
 
 # Vendor (pesado, gerado pelo composer)
 vendor/
